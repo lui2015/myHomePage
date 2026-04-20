@@ -7,11 +7,31 @@ const crypto = require('crypto');
 
 // ========== Config ==========
 const PORT = 3000;
-const JWT_SECRET = crypto.randomBytes(32).toString('hex');
-const TOKEN_EXPIRY = '7d';
+const TOKEN_EXPIRY = '30d';
 
 // ========== Database Setup ==========
-const db = new Database(process.env.DB_PATH || path.join(__dirname, 'toolbox.db'));
+const DB_PATH = process.env.DB_PATH || path.join(__dirname, 'toolbox.db');
+const fs = require('fs');
+const dbDir = path.dirname(DB_PATH);
+try { fs.mkdirSync(dbDir, { recursive: true }); } catch {}
+
+// Persistent JWT secret: reuse across restarts so tokens survive.
+// Priority: env var JWT_SECRET > file <dbDir>/jwt.secret > generate & save.
+const JWT_SECRET = (() => {
+  if (process.env.JWT_SECRET && process.env.JWT_SECRET.length >= 16) return process.env.JWT_SECRET;
+  const secretFile = path.join(dbDir, 'jwt.secret');
+  try {
+    if (fs.existsSync(secretFile)) {
+      const s = fs.readFileSync(secretFile, 'utf8').trim();
+      if (s.length >= 16) return s;
+    }
+  } catch {}
+  const s = crypto.randomBytes(48).toString('hex');
+  try { fs.writeFileSync(secretFile, s, { mode: 0o600 }); } catch (e) { console.warn('写入 jwt.secret 失败:', e.message); }
+  return s;
+})();
+
+const db = new Database(DB_PATH);
 db.pragma('journal_mode = WAL');
 db.pragma('foreign_keys = ON');
 
@@ -30,6 +50,7 @@ db.exec(`
     theme TEXT DEFAULT 'light',
     drag_enabled INTEGER DEFAULT 0,
     logo_icon TEXT DEFAULT '{"type":"emoji","value":"🧰"}',
+    click_effect INTEGER DEFAULT 1,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
   );
 
@@ -58,13 +79,24 @@ db.exec(`
   );
 `);
 
+// ========== Lightweight migrations (additive, idempotent) ==========
+// Add new columns to existing DBs without breaking data.
+function ensureColumn(table, column, ddl) {
+  const cols = db.prepare(`PRAGMA table_info(${table})`).all();
+  if (!cols.some(c => c.name === column)) {
+    db.exec(`ALTER TABLE ${table} ADD COLUMN ${ddl}`);
+    console.log(`[migrate] ${table}.${column} added`);
+  }
+}
+ensureColumn('settings', 'click_effect', 'click_effect INTEGER DEFAULT 1');
+
 // ========== Prepared Statements ==========
 const stmts = {
   findUser: db.prepare('SELECT * FROM users WHERE username = ?'),
   createUser: db.prepare('INSERT INTO users (username, password) VALUES (?, ?)'),
   createSettings: db.prepare('INSERT INTO settings (user_id) VALUES (?)'),
   getSettings: db.prepare('SELECT * FROM settings WHERE user_id = ?'),
-  updateSettings: db.prepare('UPDATE settings SET title=?, theme=?, drag_enabled=?, logo_icon=? WHERE user_id=?'),
+  updateSettings: db.prepare('UPDATE settings SET title=?, theme=?, drag_enabled=?, logo_icon=?, click_effect=? WHERE user_id=?'),
   getTools: db.prepare('SELECT * FROM tools WHERE user_id = ? ORDER BY sort_order ASC, created_at DESC'),
   getTool: db.prepare('SELECT * FROM tools WHERE id = ? AND user_id = ?'),
   createTool: db.prepare('INSERT INTO tools (id, user_id, name, url, category, description, icon_type, icon_emoji, icon_custom, sort_order) VALUES (?,?,?,?,?,?,?,?,?,?)'),
@@ -164,22 +196,24 @@ app.get('/api/me', auth, (req, res) => {
 // ========== Settings Routes ==========
 app.get('/api/settings', auth, (req, res) => {
   const s = stmts.getSettings.get(req.userId);
-  if (!s) return res.json({ title: 'My Toolbox', theme: 'light', dragEnabled: false, logoIcon: { type: 'emoji', value: '🧰' } });
+  if (!s) return res.json({ title: 'My Toolbox', theme: 'light', dragEnabled: false, logoIcon: { type: 'emoji', value: '🧰' }, clickEffect: true });
   res.json({
     title: s.title,
     theme: s.theme,
     dragEnabled: !!s.drag_enabled,
-    logoIcon: JSON.parse(s.logo_icon || '{"type":"emoji","value":"🧰"}')
+    logoIcon: JSON.parse(s.logo_icon || '{"type":"emoji","value":"🧰"}'),
+    clickEffect: s.click_effect == null ? true : !!s.click_effect
   });
 });
 
 app.put('/api/settings', auth, (req, res) => {
-  const { title, theme, dragEnabled, logoIcon } = req.body;
+  const { title, theme, dragEnabled, logoIcon, clickEffect } = req.body;
   stmts.updateSettings.run(
     title || 'My Toolbox',
     theme || 'light',
     dragEnabled ? 1 : 0,
     JSON.stringify(logoIcon || { type: 'emoji', value: '🧰' }),
+    clickEffect === false ? 0 : 1,
     req.userId
   );
   res.json({ success: true });

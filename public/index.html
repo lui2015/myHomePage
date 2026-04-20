@@ -26,6 +26,105 @@
       --border: #334155; --input-bg: rgba(30,41,59,0.9); --toast-bg: #1E293B;
       --shadow: 0 4px 16px rgba(0,0,0,0.3); --shadow-lg: 0 8px 32px rgba(0,0,0,0.4);
     }
+    /* 赛博朋克：霓虹粉紫+青色 */
+    [data-theme="cyberpunk"] {
+      --primary: #F000B8; --primary-hover: #FF2EC4; --secondary: #00E5FF;
+      --bg-start: #0A0014; --bg-end: #1B0036; --header-bg: rgba(10,0,20,0.85);
+      --card-bg: rgba(24,0,48,0.65); --card-bg-hover: rgba(36,0,72,0.85);
+      --card-border: rgba(240,0,184,0.45); --modal-bg: #13002B;
+      --text-main: #F5E9FF; --text-secondary: #B38AFF; --text-light: #7A5CAE;
+      --border: rgba(240,0,184,0.35); --input-bg: rgba(20,0,40,0.85);
+      --toast-bg: #13002B;
+      --shadow: 0 0 20px rgba(240,0,184,0.35); --shadow-lg: 0 0 40px rgba(0,229,255,0.35);
+    }
+    /* 古风：宣纸米色+朱砂墨 */
+    [data-theme="chinese"] {
+      --primary: #B93A26; --primary-hover: #8F2816; --secondary: #C48A3B;
+      --bg-start: #F3E8CF; --bg-end: #DCC59B; --header-bg: rgba(248,236,206,0.85);
+      --card-bg: rgba(253,247,230,0.78); --card-bg-hover: rgba(253,247,230,0.95);
+      --card-border: rgba(139,90,43,0.28); --modal-bg: #FBF3DC;
+      --text-main: #2B1B0E; --text-secondary: #6B4A2B; --text-light: #9A7A55;
+      --border: rgba(139,90,43,0.3); --input-bg: rgba(253,247,230,0.9);
+      --toast-bg: #FBF3DC;
+      --shadow: 0 4px 16px rgba(75,40,10,0.15); --shadow-lg: 0 8px 32px rgba(75,40,10,0.2);
+    }
+    /* 夕阳：暖橙粉 */
+    [data-theme="sunset"] {
+      --primary: #F97316; --primary-hover: #EA580C; --secondary: #EC4899;
+      --bg-start: #FFF1E6; --bg-end: #FFD6B8; --header-bg: rgba(255,247,237,0.85);
+      --card-bg: rgba(255,255,255,0.72); --card-bg-hover: rgba(255,255,255,0.92);
+      --card-border: rgba(249,115,22,0.22); --modal-bg: #FFFBF5;
+      --text-main: #2B1500; --text-secondary: #7C4A1E; --text-light: #B4834F;
+      --border: #F5D6B8; --input-bg: rgba(255,255,255,0.9); --toast-bg: #FFFBF5;
+      --shadow: 0 4px 16px rgba(249,115,22,0.2); --shadow-lg: 0 8px 32px rgba(236,72,153,0.25);
+    }
+    /* 森林：墨绿自然 */
+    [data-theme="forest"] {
+      --primary: #2F855A; --primary-hover: #22633F; --secondary: #B7791F;
+      --bg-start: #EAF3E8; --bg-end: #C9DEC4; --header-bg: rgba(234,243,232,0.85);
+      --card-bg: rgba(255,255,255,0.72); --card-bg-hover: rgba(255,255,255,0.92);
+      --card-border: rgba(47,133,90,0.25); --modal-bg: #F5FAF3;
+      --text-main: #13291E; --text-secondary: #3E5C48; --text-light: #6F8B78;
+      --border: #CEE0C8; --input-bg: rgba(255,255,255,0.9); --toast-bg: #F5FAF3;
+      --shadow: 0 4px 16px rgba(47,133,90,0.18); --shadow-lg: 0 8px 32px rgba(47,133,90,0.22);
+    }
+    /* 主题装饰层（置于背景之上、内容之下） */
+    body::before { content:""; position:fixed; inset:0; pointer-events:none; z-index:0; opacity:0; transition:opacity .5s; }
+    .header, .category-bar, .main, .footer, .modal-overlay, .co, .toast-c, .auth-page { position:relative; z-index:1; }
+    /* 赛博朋克：霓虹网格 + 扫描线 */
+    [data-theme="cyberpunk"] body::before,
+    html[data-theme="cyberpunk"] body::before {
+      opacity:1;
+      background:
+        linear-gradient(transparent 95%, rgba(240,0,184,0.25) 95%) 0 0/100% 3px,
+        linear-gradient(90deg, rgba(0,229,255,0.08) 1px, transparent 1px) 0 0/40px 40px,
+        linear-gradient(0deg, rgba(240,0,184,0.08) 1px, transparent 1px) 0 0/40px 40px,
+        radial-gradient(ellipse at 20% 0%, rgba(240,0,184,0.35), transparent 55%),
+        radial-gradient(ellipse at 80% 100%, rgba(0,229,255,0.3), transparent 55%);
+      animation: cyber-scan 6s linear infinite;
+    }
+    @keyframes cyber-scan {
+      0% { background-position: 0 0, 0 0, 0 0, 0 0, 0 0; }
+      100% { background-position: 0 200px, 0 0, 0 0, 0 0, 0 0; }
+    }
+    html[data-theme="cyberpunk"] .logo,
+    html[data-theme="cyberpunk"] .tool-name {
+      text-shadow: 0 0 8px rgba(240,0,184,0.65), 0 0 18px rgba(0,229,255,0.45);
+    }
+    html[data-theme="cyberpunk"] .tool-card:hover {
+      box-shadow: 0 0 0 1px rgba(240,0,184,0.6), 0 0 32px rgba(0,229,255,0.35);
+    }
+    html[data-theme="cyberpunk"] .btn-primary {
+      box-shadow: 0 0 14px rgba(240,0,184,0.55), inset 0 0 10px rgba(0,229,255,0.2);
+    }
+    /* 古风：宣纸纹理 + 水墨晕染 */
+    html[data-theme="chinese"] body::before {
+      opacity:1;
+      background:
+        radial-gradient(circle at 15% 20%, rgba(75,40,10,0.08), transparent 35%),
+        radial-gradient(circle at 85% 80%, rgba(185,58,38,0.08), transparent 40%),
+        repeating-linear-gradient(45deg, rgba(139,90,43,0.04) 0 2px, transparent 2px 6px),
+        repeating-linear-gradient(-45deg, rgba(139,90,43,0.03) 0 2px, transparent 2px 8px);
+    }
+    html[data-theme="chinese"] body { font-family: 'STKaiti','KaiTi','Kaiti SC','楷体', -apple-system, 'PingFang SC','Microsoft YaHei', serif; letter-spacing:0.3px; }
+    html[data-theme="chinese"] .logo { font-weight:800; }
+    html[data-theme="chinese"] .tool-card { border:1px solid rgba(139,90,43,0.25); box-shadow:0 2px 12px rgba(75,40,10,0.1); }
+    html[data-theme="chinese"] .category-tag.active,
+    html[data-theme="chinese"] .btn-primary { background:linear-gradient(135deg,#B93A26,#C48A3B); }
+    /* 夕阳淡光晕 */
+    html[data-theme="sunset"] body::before {
+      opacity:1;
+      background:
+        radial-gradient(circle at 10% 0%, rgba(249,115,22,0.25), transparent 45%),
+        radial-gradient(circle at 90% 100%, rgba(236,72,153,0.22), transparent 50%);
+    }
+    /* 森林淡光晕 */
+    html[data-theme="forest"] body::before {
+      opacity:1;
+      background:
+        radial-gradient(circle at 0% 100%, rgba(47,133,90,0.2), transparent 50%),
+        radial-gradient(circle at 100% 0%, rgba(183,121,31,0.15), transparent 50%);
+    }
     * { margin:0; padding:0; box-sizing:border-box; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
@@ -64,6 +163,53 @@
     @media(max-width:479px){.card-grid{grid-template-columns:1fr;}}
     .tool-card { background:var(--card-bg); backdrop-filter:blur(20px); border-radius:var(--radius-lg); border:1px solid var(--card-border); padding:24px; cursor:pointer; transition:var(--transition); position:relative; overflow:hidden; animation:fadeInUp .4s ease-out both; user-select:none; text-decoration:none; color:inherit; display:block; }
     .tool-card:hover { transform:translateY(-4px); background:var(--card-bg-hover); box-shadow:var(--shadow-lg); }
+    /* Click burst animation */
+    .tool-card.bursting { animation: cardBurst .55s cubic-bezier(.2,.9,.3,1.2); }
+    .tool-card.bursting .tool-icon { animation: iconPop .55s cubic-bezier(.2,.9,.3,1.4); }
+    @keyframes cardBurst {
+      0% { transform:translateY(-4px) scale(1); }
+      25% { transform:translateY(-8px) scale(1.04); box-shadow:0 0 0 2px var(--primary), var(--shadow-lg); }
+      60% { transform:translateY(-6px) scale(.98); }
+      100% { transform:translateY(-4px) scale(1); }
+    }
+    @keyframes iconPop {
+      0% { transform:scale(1) rotate(0); }
+      40% { transform:scale(1.25) rotate(-8deg); filter:brightness(1.25) saturate(1.3); }
+      70% { transform:scale(.95) rotate(6deg); }
+      100% { transform:scale(1) rotate(0); }
+    }
+    /* Ripple overlay inside card */
+    .fx-ripple { position:absolute; left:var(--fx-x,50%); top:var(--fx-y,50%); width:6px; height:6px; border-radius:50%;
+      background:radial-gradient(circle, var(--primary) 0%, rgba(255,255,255,.7) 35%, transparent 70%);
+      transform:translate(-50%,-50%) scale(1); opacity:.75; pointer-events:none; mix-blend-mode:screen;
+      animation: fxRipple .55s ease-out forwards; }
+    @keyframes fxRipple {
+      0% { transform:translate(-50%,-50%) scale(1); opacity:.85; }
+      100% { transform:translate(-50%,-50%) scale(80); opacity:0; }
+    }
+    /* Fireworks particle layer (fixed, above everything) */
+    .fx-layer { position:fixed; inset:0; pointer-events:none; z-index:9999; overflow:hidden; }
+    .fx-p { position:absolute; left:0; top:0; width:var(--s,8px); height:var(--s,8px); border-radius:50%;
+      background:var(--c,#fff); transform:translate(-50%,-50%);
+      box-shadow:0 0 8px var(--c,#fff), 0 0 16px var(--c,#fff);
+      animation: fxFly var(--d,700ms) cubic-bezier(.15,.75,.35,1) forwards; }
+    .fx-p.sparkle { border-radius:2px; width:var(--s,4px); height:calc(var(--s,4px) * 3); background:linear-gradient(var(--c,#fff), transparent); box-shadow:0 0 6px var(--c,#fff); }
+    @keyframes fxFly {
+      0%   { transform:translate(-50%,-50%) translate(0,0) scale(1); opacity:1; }
+      70%  { opacity:1; }
+      100% { transform:translate(-50%,-50%) translate(var(--tx,0), calc(var(--ty,0) + 30px)) scale(.2); opacity:0; }
+    }
+    .fx-ring { position:absolute; left:0; top:0; width:10px; height:10px; border-radius:50%;
+      border:2px solid var(--c,#fff); transform:translate(-50%,-50%); opacity:.85;
+      animation: fxRing 600ms ease-out forwards; }
+    @keyframes fxRing {
+      0%   { transform:translate(-50%,-50%) scale(.2); opacity:.9; }
+      100% { transform:translate(-50%,-50%) scale(8);  opacity:0; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .tool-card.bursting, .tool-card.bursting .tool-icon { animation:none; }
+      .fx-ripple, .fx-p, .fx-ring { display:none; }
+    }
     .tool-card.dragging { opacity:.5; transform:scale(.96); } .tool-card.drag-over { border:2px dashed var(--primary); }
     .tool-card .card-actions { position:absolute; top:12px; right:12px; display:flex; gap:4px; opacity:0; transition:var(--transition); }
     .tool-card:hover .card-actions { opacity:1; }
@@ -121,6 +267,23 @@
     .ts { display:flex; background:var(--card-bg); border-radius:20px; border:1px solid var(--border); overflow:hidden; }
     .ts button { padding:6px 14px; border:none; background:transparent; cursor:pointer; font-size:13px; font-weight:500; color:var(--text-secondary); transition:var(--transition); }
     .ts button.active { background:linear-gradient(135deg,var(--primary),var(--secondary)); color:white; }
+    /* Theme Picker */
+    .theme-picker { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; padding:8px 0 4px; }
+    .theme-opt { cursor:pointer; border:2px solid var(--border); border-radius:var(--radius-md); padding:8px; background:var(--card-bg); transition:var(--transition); text-align:left; }
+    .theme-opt:hover { transform:translateY(-2px); box-shadow:var(--shadow); }
+    .theme-opt.active { border-color:var(--primary); box-shadow:0 0 0 3px rgba(99,102,241,.18); }
+    .theme-opt .tp-prev { height:46px; border-radius:var(--radius-sm); margin-bottom:6px; position:relative; overflow:hidden; }
+    .theme-opt .tp-prev::after { content:""; position:absolute; left:8px; bottom:6px; width:18px; height:6px; border-radius:3px; background:rgba(255,255,255,0.85); }
+    .theme-opt .tp-prev::before { content:""; position:absolute; right:8px; top:6px; width:10px; height:10px; border-radius:50%; background:rgba(255,255,255,0.85); }
+    .theme-opt .tp-name { font-size:12px; font-weight:600; color:var(--text-main); display:flex; align-items:center; gap:4px; }
+    .theme-opt .tp-name .tp-ico { font-size:13px; }
+    .tp-light .tp-prev { background:linear-gradient(135deg,#F8FAFC,#E2E8F0); border:1px solid #E2E8F0; }
+    .tp-dark .tp-prev { background:linear-gradient(135deg,#0F172A,#1E293B); }
+    .tp-cyberpunk .tp-prev { background:linear-gradient(135deg,#0A0014 0%,#1B0036 55%,#F000B8 100%); box-shadow:inset 0 0 18px rgba(0,229,255,.45); }
+    .tp-chinese .tp-prev { background:linear-gradient(135deg,#F3E8CF,#DCC59B); border:1px solid rgba(139,90,43,0.3); }
+    .tp-chinese .tp-prev::after { background:#B93A26; }
+    .tp-sunset .tp-prev { background:linear-gradient(135deg,#FFB07A,#EC4899); }
+    .tp-forest .tp-prev { background:linear-gradient(135deg,#A8C8A0,#2F855A); }
     .tei { padding:6px 12px; border:2px solid var(--border); border-radius:var(--radius-sm); font-size:14px; width:180px; outline:none; background:var(--input-bg); color:var(--text-main); transition:var(--transition); }
     .tei:focus { border-color:var(--primary); }
     .li-set { display:flex; align-items:center; gap:10px; }
@@ -245,8 +408,9 @@
           <div class="li-btns"><button class="btn btn-secondary" onclick="document.getElementById('liEmojiWrap').hidden=!document.getElementById('liEmojiWrap').hidden">😀 Emoji</button><button class="btn btn-secondary" onclick="document.getElementById('liUpFile').click()">📁 上传</button><button class="btn btn-ghost" onclick="sLogoD={type:'emoji',value:'🧰'};updLiPrev()">重置</button><input type="file" id="liUpFile" accept="image/*" style="display:none" onchange="handleLogoUp(event)"></div></div>
       </div>
       <div id="liEmojiWrap" hidden style="padding:10px 0;"><div class="emoji-grid" id="liEmojiGrid"></div></div>
-      <div class="sr"><div class="sl">页面主题<small>亮色 / 暗色</small></div><div class="ts" id="tSwitch"><button data-t="light" onclick="setTheme('light')">☀️ 亮色</button><button data-t="dark" onclick="setTheme('dark')">🌙 暗色</button></div></div>
+      <div class="sr" style="flex-direction:column;align-items:stretch;gap:4px;"><div class="sl">页面主题<small>选择你喜欢的风格</small></div><div class="theme-picker" id="themePicker"></div></div>
       <div class="sr"><div class="sl">拖拽排序<small>拖动卡片调整顺序</small></div><div class="ts" id="dToggle"><button data-v="on" onclick="dragOn=true;updDT()">开启</button><button data-v="off" onclick="dragOn=false;updDT()">关闭</button></div></div>
+      <div class="sr"><div class="sl">点击特效<small>点击卡片时的烟花动效</small></div><div class="ts" id="fxToggle"><button data-v="on" onclick="fxOn=true;updFX()">开启</button><button data-v="off" onclick="fxOn=false;updFX()">关闭</button></div></div>
     </div>
     <div class="mf"><button class="btn btn-primary" onclick="saveSetting()">保存设置</button></div>
   </div>
@@ -269,11 +433,21 @@ let user = null;
 let tools = [], categories = [], settings = {};
 let curFilter = '全部', curSearch = '', delId = null;
 let dragOn = false, dragSrc = null;
+let fxOn = true;
 let curIconTab = 'auto', iconEmoji = '', iconUrlData = '', iconUpData = '';
 let sLogoD = { type: 'emoji', value: '🧰' };
 
 const EMOJIS = ['🔧','🛠️','📅','🌍','📝','💬','🤖','💻','📊','📧','🔍','📚','🎵','🎮','📷','🛒','💰','🏠','✈️','🍔','⚡','🔒','📱','🖥️','☁️','📡','🧪','🎯','📌','🗂️','✅','⭐','❤️','🔥','💎','🌙','☀️','🌈','🍀','🧰','🎨','🖌️','🎬','📹','🎤','📻','🗓️','⏰','🧭','🔔','💡','📦','🏗️','🔬','🧮','📐','🗺️','🌐','🔗','⚙️'];
 const COLORS = ['#6366F1','#8B5CF6','#EC4899','#F43F5E','#F97316','#EAB308','#22C55E','#14B8A6','#06B6D4','#3B82F6'];
+const THEMES = [
+  { id:'light',     name:'亮色',     icon:'☀️' },
+  { id:'dark',      name:'暗色',     icon:'🌙' },
+  { id:'cyberpunk', name:'赛博朋克', icon:'🌆' },
+  { id:'chinese',   name:'古风',     icon:'🏮' },
+  { id:'sunset',    name:'夕阳',     icon:'🌇' },
+  { id:'forest',    name:'森林',     icon:'🌿' },
+];
+const THEME_IDS = THEMES.map(t=>t.id);
 
 // ========== API Helpers ==========
 async function api(path, opts = {}) {
@@ -365,6 +539,7 @@ async function loadAll() {
   const [tData, cData, sData] = await Promise.all([api('/tools'), api('/categories'), api('/settings')]);
   tools = tData.tools; categories = cData.categories; settings = sData;
   dragOn = settings.dragEnabled || false;
+  fxOn = settings.clickEffect !== false;
   applyTheme(settings.theme || 'light');
   applyTitle(settings.title || 'My Toolbox');
   applyLogo(settings.logoIcon || {type:'emoji',value:'🧰'});
@@ -373,9 +548,21 @@ async function loadAll() {
 }
 
 // ========== Theme / Title / Logo ==========
-function applyTheme(t) { document.documentElement.setAttribute('data-theme', t); }
-function setTheme(t) { settings.theme = t; updTS(); }
-function updTS() { document.querySelectorAll('#tSwitch button').forEach(b=>b.classList.toggle('active',b.dataset.t===settings.theme)); }
+function applyTheme(t) {
+  if (!THEME_IDS.includes(t)) t = 'light';
+  document.documentElement.setAttribute('data-theme', t);
+}
+function setTheme(t) { settings.theme = t; applyTheme(t); renderThemePicker(); }
+function renderThemePicker() {
+  const box = document.getElementById('themePicker');
+  if (!box) return;
+  const cur = settings.theme || 'light';
+  box.innerHTML = THEMES.map(t=>`
+    <div class="theme-opt tp-${t.id} ${t.id===cur?'active':''}" onclick="setTheme('${t.id}')" title="${esc(t.name)}">
+      <div class="tp-prev"></div>
+      <div class="tp-name"><span class="tp-ico">${t.icon}</span>${esc(t.name)}</div>
+    </div>`).join('');
+}
 function applyTitle(t) { document.getElementById('siteTitle').textContent=t; document.title=t+' - 个人工具汇总'; document.getElementById('footerText').textContent=t+' © 2026'; }
 function applyLogo(d) {
   const el=document.getElementById('logoIcon');
@@ -388,6 +575,7 @@ function updLiPrev() {
   else { el.innerHTML=''; el.textContent=sLogoD.value||'🧰'; }
 }
 function updDT() { document.querySelectorAll('#dToggle button').forEach(b=>b.classList.toggle('active',(b.dataset.v==='on')===dragOn)); }
+function updFX() { document.querySelectorAll('#fxToggle button').forEach(b=>b.classList.toggle('active',(b.dataset.v==='on')===fxOn)); }
 
 // ========== Render ==========
 function render() { renderCats(); renderCards(); updCount(); }
@@ -438,6 +626,96 @@ function updCount() {
 
 // ========== Search ==========
 document.getElementById('searchInput').addEventListener('input', e=>{ curSearch=e.target.value; renderCards(); updCount(); });
+
+// ========== Click Fireworks ==========
+const FX_COLORS = ['#F43F5E','#F97316','#EAB308','#22C55E','#06B6D4','#6366F1','#EC4899','#F5E9FF','#00E5FF','#FF2EC4'];
+let _fxLayer = null;
+function fxLayer() {
+  if (!_fxLayer || !document.body.contains(_fxLayer)) {
+    _fxLayer = document.createElement('div');
+    _fxLayer.className = 'fx-layer';
+    document.body.appendChild(_fxLayer);
+  }
+  return _fxLayer;
+}
+function fxBurst(x, y) {
+  const layer = fxLayer();
+  const colors = [...FX_COLORS].sort(()=>Math.random()-0.5);
+  // Ring shockwave
+  const ring = document.createElement('div');
+  ring.className = 'fx-ring';
+  ring.style.left = x+'px'; ring.style.top = y+'px';
+  ring.style.setProperty('--c', colors[0]);
+  layer.appendChild(ring);
+  setTimeout(()=>ring.remove(), 650);
+  // Particles
+  const N = 26;
+  for (let i=0; i<N; i++) {
+    const p = document.createElement('div');
+    const isSpark = Math.random() < 0.3;
+    p.className = 'fx-p' + (isSpark ? ' sparkle' : '');
+    const ang = (Math.PI*2) * (i/N) + Math.random()*0.4;
+    const dist = 70 + Math.random()*90;
+    const tx = Math.cos(ang) * dist;
+    const ty = Math.sin(ang) * dist;
+    const dur = 600 + Math.random()*400;
+    const size = isSpark ? (3 + Math.random()*3) : (5 + Math.random()*6);
+    p.style.left = x+'px'; p.style.top = y+'px';
+    p.style.setProperty('--tx', tx+'px');
+    p.style.setProperty('--ty', ty+'px');
+    p.style.setProperty('--d', dur+'ms');
+    p.style.setProperty('--s', size+'px');
+    p.style.setProperty('--c', colors[i % colors.length]);
+    layer.appendChild(p);
+    setTimeout(()=>p.remove(), dur+50);
+  }
+  // Secondary small burst for "fireworks trail" feel
+  setTimeout(()=>{
+    for (let i=0; i<10; i++) {
+      const p = document.createElement('div');
+      p.className = 'fx-p';
+      const ang = Math.random()*Math.PI*2;
+      const dist = 30 + Math.random()*50;
+      p.style.left = x+'px'; p.style.top = y+'px';
+      p.style.setProperty('--tx', (Math.cos(ang)*dist)+'px');
+      p.style.setProperty('--ty', (Math.sin(ang)*dist)+'px');
+      p.style.setProperty('--d', '500ms');
+      p.style.setProperty('--s', (3+Math.random()*3)+'px');
+      p.style.setProperty('--c', colors[(i+3) % colors.length]);
+      layer.appendChild(p);
+      setTimeout(()=>p.remove(), 560);
+    }
+  }, 140);
+}
+function fxRippleOnCard(card, x, y) {
+  const r = card.getBoundingClientRect();
+  const el = document.createElement('span');
+  el.className = 'fx-ripple';
+  el.style.setProperty('--fx-x', (x - r.left) + 'px');
+  el.style.setProperty('--fx-y', (y - r.top) + 'px');
+  card.appendChild(el);
+  setTimeout(()=>el.remove(), 600);
+}
+document.getElementById('cardGrid').addEventListener('click', e=>{
+  const card = e.target.closest('.tool-card');
+  if (!card) return;
+  // Ignore action buttons (edit/delete/drag handle)
+  if (e.target.closest('.card-actions')) return;
+  // Drag mode: don't navigate, but still play effect for feedback
+  const inDrag = dragOn;
+  if (!fxOn && !inDrag) return; // nothing to do
+  const url = card.getAttribute('href');
+  if (fxOn) {
+    e.preventDefault();
+    card.classList.remove('bursting'); void card.offsetWidth; card.classList.add('bursting');
+    fxRippleOnCard(card, e.clientX, e.clientY);
+    fxBurst(e.clientX, e.clientY);
+    setTimeout(()=>card.classList.remove('bursting'), 600);
+    if (!inDrag && url) {
+      setTimeout(()=>{ window.open(url, '_blank', 'noopener'); }, 260);
+    }
+  }
+});
 
 // ========== Drag ==========
 function dStart(e){dragSrc=e.currentTarget.dataset.id;e.currentTarget.classList.add('dragging');e.dataTransfer.effectAllowed='move';}
@@ -590,7 +868,7 @@ async function confirmDel(){
 function openSettings(){
   document.getElementById('setTitle').value=settings.title||'My Toolbox';
   sLogoD=settings.logoIcon||{type:'emoji',value:'🧰'};
-  updLiPrev(); updTS(); updDT();
+  updLiPrev(); renderThemePicker(); updDT(); updFX();
   document.getElementById('liEmojiWrap').hidden=true;
   document.getElementById('settingsOverlay').classList.add('active');
 }
@@ -598,7 +876,7 @@ function closeSetting(){document.getElementById('settingsOverlay').classList.rem
 
 async function saveSetting(){
   const title=document.getElementById('setTitle').value.trim()||'My Toolbox';
-  settings.title=title;settings.dragEnabled=dragOn;settings.logoIcon=sLogoD;
+  settings.title=title;settings.dragEnabled=dragOn;settings.logoIcon=sLogoD;settings.clickEffect=fxOn;
   applyTitle(title);applyLogo(sLogoD);
   try{await api('/settings',{method:'PUT',body:settings});toast('设置已保存','success');closeSetting();}
   catch(e){toast(e.message,'error');}
