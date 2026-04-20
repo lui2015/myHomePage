@@ -1,0 +1,5 @@
+node_modules
+toolbox.db
+.git
+.codebuddy
+*.md

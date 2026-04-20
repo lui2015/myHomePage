@@ -1,0 +1,1217 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Toolbox - 个人工具汇总</title>
+  <style>
+    /* ========== CSS Variables — Light Theme ========== */
+    :root {
+      --primary: #6366F1;
+      --primary-hover: #4F46E5;
+      --secondary: #8B5CF6;
+      --bg-start: #F8FAFC;
+      --bg-end: #E2E8F0;
+      --header-bg: rgba(255,255,255,0.8);
+      --card-bg: rgba(255,255,255,0.7);
+      --card-bg-hover: rgba(255,255,255,0.9);
+      --card-border: rgba(255,255,255,0.5);
+      --modal-bg: #ffffff;
+      --text-main: #1E293B;
+      --text-secondary: #64748B;
+      --text-light: #94A3B8;
+      --border: #E2E8F0;
+      --input-bg: rgba(255,255,255,0.9);
+      --danger: #EF4444;
+      --danger-hover: #DC2626;
+      --success: #10B981;
+      --toast-bg: #ffffff;
+      --radius-lg: 16px;
+      --radius-md: 12px;
+      --radius-sm: 8px;
+      --shadow: 0 4px 16px rgba(0,0,0,0.08);
+      --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
+      --transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    /* ========== Dark Theme ========== */
+    [data-theme="dark"] {
+      --bg-start: #0F172A;
+      --bg-end: #1E293B;
+      --header-bg: rgba(15,23,42,0.9);
+      --card-bg: rgba(30,41,59,0.8);
+      --card-bg-hover: rgba(30,41,59,1);
+      --card-border: rgba(51,65,85,0.5);
+      --modal-bg: #1E293B;
+      --text-main: #F1F5F9;
+      --text-secondary: #94A3B8;
+      --text-light: #64748B;
+      --border: #334155;
+      --input-bg: rgba(30,41,59,0.9);
+      --toast-bg: #1E293B;
+      --shadow: 0 4px 16px rgba(0,0,0,0.3);
+      --shadow-lg: 0 8px 32px rgba(0,0,0,0.4);
+    }
+
+    /* ========== Reset & Base ========== */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+      background: linear-gradient(135deg, var(--bg-start) 0%, var(--bg-end) 100%);
+      color: var(--text-main);
+      min-height: 100vh;
+      line-height: 1.6;
+      transition: background 0.4s, color 0.4s;
+    }
+
+    /* ========== Header ========== */
+    .header {
+      background: var(--header-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 16px 0;
+    }
+
+    .header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--primary);
+      white-space: nowrap;
+      cursor: default;
+    }
+
+    .logo-icon {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      color: white; font-size: 18px;
+    }
+
+    .search-box {
+      flex: 1; max-width: 400px; min-width: 200px; position: relative;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 10px 16px 10px 42px;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      background: var(--input-bg);
+      color: var(--text-main);
+      transition: var(--transition);
+      outline: none;
+    }
+
+    .search-box input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+    }
+
+    .search-box .search-icon {
+      position: absolute; left: 14px; top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-light); font-size: 16px; pointer-events: none;
+    }
+
+    .header-actions { display: flex; gap: 8px; align-items: center; }
+
+    /* ========== Buttons ========== */
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 10px 20px; border: none; border-radius: var(--radius-sm);
+      font-size: 14px; font-weight: 600; cursor: pointer;
+      transition: var(--transition); white-space: nowrap;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white; box-shadow: 0 2px 8px rgba(99,102,241,0.3);
+    }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(99,102,241,0.4); }
+    .btn-secondary {
+      background: var(--card-bg); color: var(--text-main); border: 1px solid var(--border);
+    }
+    .btn-secondary:hover { border-color: var(--primary); color: var(--primary); }
+    .btn-danger { background: var(--danger); color: white; }
+    .btn-danger:hover { background: var(--danger-hover); }
+    .btn-ghost { background: transparent; color: var(--text-secondary); padding: 6px 10px; }
+    .btn-ghost:hover { background: rgba(99,102,241,0.08); color: var(--primary); }
+    .btn-icon {
+      width: 36px; height: 36px; padding: 0;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: var(--radius-sm);
+    }
+
+    /* ========== Category Tags ========== */
+    .category-bar {
+      max-width: 1200px; margin: 24px auto 0; padding: 0 24px;
+      display: flex; gap: 8px; flex-wrap: wrap;
+    }
+    .category-tag {
+      padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 500;
+      cursor: pointer; transition: var(--transition);
+      background: var(--card-bg); color: var(--text-secondary);
+      border: 1px solid transparent; backdrop-filter: blur(10px);
+    }
+    .category-tag:hover { color: var(--primary); }
+    .category-tag.active {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white; box-shadow: 0 2px 8px rgba(99,102,241,0.3);
+    }
+
+    /* ========== Main Content ========== */
+    .main { max-width: 1200px; margin: 0 auto; padding: 24px; }
+    .tools-count { font-size: 13px; color: var(--text-light); margin-bottom: 16px; }
+
+    /* ========== Card Grid ========== */
+    .card-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+    @media (max-width: 1199px) { .card-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 767px)  { .card-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 479px)  { .card-grid { grid-template-columns: 1fr; } }
+
+    /* ========== Tool Card ========== */
+    .tool-card {
+      background: var(--card-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border-radius: var(--radius-lg); border: 1px solid var(--card-border);
+      padding: 24px; cursor: pointer; transition: var(--transition);
+      position: relative; overflow: hidden; animation: fadeInUp 0.4s ease-out both;
+      user-select: none;
+    }
+    .tool-card:hover { transform: translateY(-4px); background: var(--card-bg-hover); box-shadow: var(--shadow-lg); }
+    .tool-card.dragging { opacity: 0.5; transform: scale(0.96); box-shadow: var(--shadow-lg); }
+    .tool-card.drag-over { border: 2px dashed var(--primary); }
+
+    .tool-card .card-actions {
+      position: absolute; top: 12px; right: 12px;
+      display: flex; gap: 4px; opacity: 0; transition: var(--transition);
+    }
+    .tool-card:hover .card-actions { opacity: 1; }
+
+    .card-actions .btn-icon {
+      width: 30px; height: 30px; font-size: 13px;
+      background: var(--card-bg-hover); border: 1px solid var(--border);
+    }
+    .card-actions .btn-icon:hover { background: var(--modal-bg); }
+    .card-actions .btn-icon.delete:hover { color: var(--danger); border-color: var(--danger); }
+    .card-actions .btn-icon.edit:hover { color: var(--primary); border-color: var(--primary); }
+    .card-actions .btn-icon.drag { cursor: grab; }
+    .card-actions .btn-icon.drag:active { cursor: grabbing; }
+
+    .tool-icon {
+      width: 48px; height: 48px; border-radius: var(--radius-md);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 14px; font-size: 22px; font-weight: 700;
+      color: white; overflow: hidden; position: relative;
+    }
+    .tool-icon img { width: 28px; height: 28px; object-fit: contain; }
+    .tool-icon .icon-fallback {
+      width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+    }
+    .tool-name {
+      font-size: 16px; font-weight: 600; color: var(--text-main);
+      margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .tool-desc {
+      font-size: 13px; color: var(--text-secondary); margin-bottom: 8px;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .tool-url {
+      font-size: 12px; color: var(--text-light);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .tool-category-badge {
+      display: inline-block; padding: 2px 8px; border-radius: 10px;
+      font-size: 11px; font-weight: 500;
+      background: rgba(99,102,241,0.1); color: var(--primary); margin-top: 10px;
+    }
+
+    /* ========== Empty State ========== */
+    .empty-state { text-align: center; padding: 80px 24px; grid-column: 1/-1; }
+    .empty-state .empty-icon { font-size: 64px; margin-bottom: 16px; }
+    .empty-state h3 { font-size: 18px; color: var(--text-main); margin-bottom: 8px; }
+    .empty-state p { color: var(--text-secondary); font-size: 14px; margin-bottom: 24px; }
+
+    /* ========== Modal ========== */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+      backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center;
+      z-index: 1000; opacity: 0; visibility: hidden; transition: var(--transition); padding: 24px;
+    }
+    .modal-overlay.active { opacity: 1; visibility: visible; }
+    .modal {
+      background: var(--modal-bg); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg);
+      width: 100%; max-width: 480px; transform: translateY(20px);
+      transition: var(--transition); max-height: 90vh; overflow-y: auto;
+    }
+    .modal-overlay.active .modal { transform: translateY(0); }
+    .modal-header {
+      display: flex; align-items: center; justify-content: space-between; padding: 20px 24px 0;
+    }
+    .modal-header h2 { font-size: 18px; font-weight: 700; }
+    .modal-body { padding: 20px 24px; }
+    .form-group { margin-bottom: 16px; }
+    .form-group label {
+      display: block; font-size: 13px; font-weight: 600; color: var(--text-main); margin-bottom: 6px;
+    }
+    .form-group label .required { color: var(--danger); margin-left: 2px; }
+    .form-group input, .form-group textarea, .form-group select {
+      width: 100%; padding: 10px 14px; border: 2px solid var(--border);
+      border-radius: var(--radius-sm); font-size: 14px; transition: var(--transition);
+      outline: none; font-family: inherit;
+      background: var(--input-bg); color: var(--text-main);
+    }
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+      border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+    }
+    .form-group input.error, .form-group textarea.error {
+      border-color: var(--danger); box-shadow: 0 0 0 3px rgba(239,68,68,0.1);
+    }
+    .form-group .error-msg { font-size: 12px; color: var(--danger); margin-top: 4px; display: none; }
+    .form-group .error-msg.show { display: block; }
+    .form-group textarea { resize: vertical; min-height: 80px; }
+    .category-input-wrap { display: flex; gap: 8px; }
+    .category-input-wrap select, .category-input-wrap input { flex: 1; }
+    .modal-footer { padding: 0 24px 20px; display: flex; gap: 10px; justify-content: flex-end; }
+
+    /* ========== Settings Panel ========== */
+    .settings-panel .modal { max-width: 420px; }
+    .setting-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 0; border-bottom: 1px solid var(--border);
+    }
+    .setting-row:last-child { border-bottom: none; }
+    .setting-label { font-size: 14px; font-weight: 500; color: var(--text-main); }
+    .setting-label small { display: block; font-size: 12px; color: var(--text-secondary); font-weight: 400; margin-top: 2px; }
+
+    /* Theme Switch */
+    .theme-switch {
+      display: flex; background: var(--card-bg); border-radius: 20px;
+      border: 1px solid var(--border); overflow: hidden;
+    }
+    .theme-switch button {
+      padding: 6px 14px; border: none; background: transparent;
+      cursor: pointer; font-size: 13px; font-weight: 500;
+      color: var(--text-secondary); transition: var(--transition);
+    }
+    .theme-switch button.active {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+    }
+
+    /* Title Edit */
+    .title-edit-input {
+      padding: 6px 12px; border: 2px solid var(--border); border-radius: var(--radius-sm);
+      font-size: 14px; width: 180px; outline: none;
+      background: var(--input-bg); color: var(--text-main); transition: var(--transition);
+    }
+    .title-edit-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99,102,241,0.15); }
+
+    /* Logo Icon Upload */
+    .logo-icon-setting { display: flex; align-items: center; gap: 10px; }
+    .logo-icon-preview {
+      width: 40px; height: 40px; border-radius: 10px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; color: white; overflow: hidden; flex-shrink: 0;
+    }
+    .logo-icon-preview img { width: 100%; height: 100%; object-fit: cover; }
+    .logo-icon-btns { display: flex; gap: 4px; flex-wrap: wrap; }
+    .logo-icon-btns .btn { padding: 4px 10px; font-size: 12px; }
+
+    /* ========== Icon Picker (for tool icon) ========== */
+    .icon-picker { margin-bottom: 16px; }
+    .icon-picker label { display: block; font-size: 13px; font-weight: 600; color: var(--text-main); margin-bottom: 8px; }
+    .icon-picker-tabs {
+      display: flex; gap: 0; margin-bottom: 12px; border-radius: var(--radius-sm);
+      border: 1px solid var(--border); overflow: hidden;
+    }
+    .icon-picker-tabs button {
+      flex: 1; padding: 7px 0; border: none; background: transparent;
+      font-size: 12px; font-weight: 500; cursor: pointer; color: var(--text-secondary);
+      transition: var(--transition);
+    }
+    .icon-picker-tabs button.active {
+      background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white;
+    }
+    .icon-tab-content { display: none; }
+    .icon-tab-content.active { display: block; }
+
+    .icon-preview-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+    .icon-preview-box {
+      width: 52px; height: 52px; border-radius: var(--radius-md); overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px; color: white; flex-shrink: 0; border: 2px solid var(--border);
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+    }
+    .icon-preview-box img { width: 100%; height: 100%; object-fit: cover; }
+    .icon-preview-box.has-img { background: var(--card-bg); }
+
+    .emoji-grid {
+      display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px;
+      max-height: 140px; overflow-y: auto; padding: 4px;
+    }
+    .emoji-grid span {
+      width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
+      font-size: 20px; border-radius: 8px; cursor: pointer; transition: var(--transition);
+      border: 2px solid transparent;
+    }
+    .emoji-grid span:hover { background: rgba(99,102,241,0.1); }
+    .emoji-grid span.selected { border-color: var(--primary); background: rgba(99,102,241,0.15); }
+
+    .upload-zone {
+      border: 2px dashed var(--border); border-radius: var(--radius-sm);
+      padding: 20px; text-align: center; cursor: pointer; transition: var(--transition);
+      color: var(--text-secondary); font-size: 13px;
+    }
+    .upload-zone:hover { border-color: var(--primary); color: var(--primary); }
+    .upload-zone input { display: none; }
+
+    /* ========== Confirm Dialog ========== */
+    .confirm-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center;
+      z-index: 1100; opacity: 0; visibility: hidden; transition: var(--transition); padding: 24px;
+    }
+    .confirm-overlay.active { opacity: 1; visibility: visible; }
+    .confirm-dialog {
+      background: var(--modal-bg); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg);
+      padding: 28px; max-width: 380px; width: 100%; text-align: center;
+      transform: scale(0.9); transition: var(--transition);
+    }
+    .confirm-overlay.active .confirm-dialog { transform: scale(1); }
+    .confirm-dialog .confirm-icon { font-size: 40px; margin-bottom: 12px; }
+    .confirm-dialog h3 { font-size: 16px; margin-bottom: 8px; }
+    .confirm-dialog p { font-size: 14px; color: var(--text-secondary); margin-bottom: 20px; }
+    .confirm-dialog .confirm-actions { display: flex; gap: 10px; justify-content: center; }
+    .confirm-dialog .confirm-actions .btn { flex: 1; }
+
+    /* ========== Footer ========== */
+    .footer { text-align: center; padding: 32px 24px; color: var(--text-light); font-size: 13px; }
+
+    .data-actions { display: flex; gap: 8px; }
+
+    /* ========== Toast ========== */
+    .toast-container {
+      position: fixed; top: 20px; right: 20px; z-index: 2000;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .toast {
+      background: var(--toast-bg); border-radius: var(--radius-sm); box-shadow: var(--shadow-lg);
+      padding: 12px 20px; font-size: 14px; display: flex; align-items: center; gap: 8px;
+      animation: slideInRight 0.3s ease-out; min-width: 240px; color: var(--text-main);
+    }
+    .toast.success { border-left: 3px solid var(--success); }
+    .toast.error   { border-left: 3px solid var(--danger); }
+    .toast.info    { border-left: 3px solid var(--primary); }
+
+    /* ========== Animations ========== */
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes slideInRight { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+
+    /* ========== Responsive ========== */
+    @media (max-width: 600px) {
+      .header-inner { flex-direction: column; align-items: stretch; gap: 12px; }
+      .logo { justify-content: center; }
+      .search-box { max-width: 100%; }
+      .header-actions { justify-content: center; flex-wrap: wrap; }
+      .data-actions { justify-content: center; }
+    }
+
+    /* ========== Scrollbar ========== */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--text-light); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">
+        <div class="logo-icon" id="logoIcon">🧰</div>
+        <span id="siteTitle">My Toolbox</span>
+      </div>
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="搜索工具..." autocomplete="off">
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-primary" onclick="openAddModal()">
+          <span>＋</span> 添加工具
+        </button>
+        <button class="btn btn-secondary btn-icon" onclick="openSettings()" title="设置">⚙️</button>
+        <div class="data-actions">
+          <button class="btn btn-secondary btn-icon" onclick="exportData()" title="导出数据">📤</button>
+          <button class="btn btn-secondary btn-icon" onclick="document.getElementById('importFile').click()" title="导入数据">📥</button>
+          <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Category Bar -->
+  <nav class="category-bar" id="categoryBar"></nav>
+
+  <!-- Main Content -->
+  <main class="main">
+    <div class="tools-count" id="toolsCount"></div>
+    <div class="card-grid" id="cardGrid"></div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p id="footerText">My Toolbox &copy; 2026 — 你的个人工具导航</p>
+  </footer>
+
+  <!-- Add/Edit Tool Modal -->
+  <div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event, 'modalOverlay')">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h2 id="modalTitle">添加工具</h2>
+        <button class="btn btn-ghost btn-icon" onclick="closeModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="editId">
+        <input type="hidden" id="toolIconData" value="">
+        <div class="form-group">
+          <label>工具名称 <span class="required">*</span></label>
+          <input type="text" id="toolName" placeholder="例如：Google 翻译" maxlength="50">
+          <div class="error-msg" id="nameError">请输入工具名称</div>
+        </div>
+        <div class="form-group">
+          <label>工具地址 <span class="required">*</span></label>
+          <input type="url" id="toolUrl" placeholder="例如：https://translate.google.com">
+          <div class="error-msg" id="urlError">请输入有效的网址</div>
+        </div>
+        <!-- Icon Picker -->
+        <div class="icon-picker">
+          <label>工具图标</label>
+          <div class="icon-preview-row">
+            <div class="icon-preview-box" id="toolIconPreview">?</div>
+            <span style="font-size:12px; color:var(--text-secondary)">选择图标来源</span>
+          </div>
+          <div class="icon-picker-tabs" id="iconPickerTabs">
+            <button class="active" onclick="switchIconTab('auto')">🌐 自动获取</button>
+            <button onclick="switchIconTab('emoji')">😀 Emoji</button>
+            <button onclick="switchIconTab('url')">🔗 图片URL</button>
+            <button onclick="switchIconTab('upload')">📁 上传</button>
+          </div>
+          <div class="icon-tab-content active" id="iconTab-auto">
+            <div style="font-size:13px; color:var(--text-secondary); padding:8px 0;">
+              根据工具地址自动获取网站图标（默认）
+            </div>
+          </div>
+          <div class="icon-tab-content" id="iconTab-emoji">
+            <div class="emoji-grid" id="emojiGrid"></div>
+          </div>
+          <div class="icon-tab-content" id="iconTab-url">
+            <input type="url" id="toolIconUrl" class="form-group" style="width:100%; padding:10px 14px; border:2px solid var(--border); border-radius:var(--radius-sm); font-size:14px; background:var(--input-bg); color:var(--text-main); outline:none;" placeholder="输入图片地址，如 https://example.com/icon.png" oninput="previewIconFromUrl()">
+          </div>
+          <div class="icon-tab-content" id="iconTab-upload">
+            <div class="upload-zone" onclick="document.getElementById('toolIconFile').click()">
+              <div style="font-size:28px; margin-bottom:6px;">📁</div>
+              <div>点击选择图片文件</div>
+              <div style="font-size:11px; margin-top:4px; color:var(--text-light)">支持 JPG / PNG / SVG / WebP，建议 128x128</div>
+              <input type="file" id="toolIconFile" accept="image/*" onchange="handleToolIconUpload(event)">
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>分类标签</label>
+          <div class="category-input-wrap">
+            <select id="toolCategorySelect" onchange="handleCategoryChange()">
+              <option value="">选择分类...</option>
+              <option value="__new__">+ 新建分类</option>
+            </select>
+            <input type="text" id="toolCategoryNew" placeholder="输入新分类" style="display:none" maxlength="20">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>工具描述</label>
+          <textarea id="toolDesc" placeholder="简要描述工具用途..." maxlength="200"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal()">取消</button>
+        <button class="btn btn-primary" onclick="saveTool()">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
+  <div class="modal-overlay settings-panel" id="settingsOverlay" onclick="handleOverlayClick(event, 'settingsOverlay')">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h2>⚙️ 设置</h2>
+        <button class="btn btn-ghost btn-icon" onclick="closeSettings()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="setting-row">
+          <div class="setting-label">
+            网站标题
+            <small>显示在页面顶部的名称</small>
+          </div>
+          <input type="text" class="title-edit-input" id="settingTitle" maxlength="30" placeholder="输入标题">
+        </div>
+        <div class="setting-row">
+          <div class="setting-label">
+            网站图标
+            <small>自定义左上角 Logo 图标</small>
+          </div>
+          <div class="logo-icon-setting">
+            <div class="logo-icon-preview" id="logoIconPreview">🧰</div>
+            <div class="logo-icon-btns">
+              <button class="btn btn-secondary" onclick="openLogoEmojiPicker()">😀 Emoji</button>
+              <button class="btn btn-secondary" onclick="document.getElementById('logoUploadFile').click()">📁 上传</button>
+              <button class="btn btn-ghost" onclick="resetLogoIcon()">重置</button>
+              <input type="file" id="logoUploadFile" accept="image/*" style="display:none" onchange="handleLogoUpload(event)">
+            </div>
+          </div>
+        </div>
+        <div id="logoEmojiPickerWrap" style="display:none; padding: 10px 0;">
+          <div class="emoji-grid" id="logoEmojiGrid"></div>
+        </div>
+        <div class="setting-row">
+          <div class="setting-label">
+            页面主题
+            <small>切换亮色 / 暗色外观</small>
+          </div>
+          <div class="theme-switch" id="themeSwitch">
+            <button data-theme="light" onclick="setTheme('light')">☀️ 亮色</button>
+            <button data-theme="dark" onclick="setTheme('dark')">🌙 暗色</button>
+          </div>
+        </div>
+        <div class="setting-row">
+          <div class="setting-label">
+            拖拽排序
+            <small>拖动卡片上的 ≡ 图标调整顺序</small>
+          </div>
+          <div class="theme-switch" id="dragToggle">
+            <button data-val="on" onclick="toggleDragMode(true)">开启</button>
+            <button data-val="off" onclick="toggleDragMode(false)">关闭</button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" onclick="saveSettings()">保存设置</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirm Dialog -->
+  <div class="confirm-overlay" id="confirmOverlay" onclick="closeConfirm()">
+    <div class="confirm-dialog" onclick="event.stopPropagation()">
+      <div class="confirm-icon">⚠️</div>
+      <h3>确认删除</h3>
+      <p id="confirmMsg">确定要删除这个工具吗？此操作不可撤销。</p>
+      <div class="confirm-actions">
+        <button class="btn btn-secondary" onclick="closeConfirm()">取消</button>
+        <button class="btn btn-danger" id="confirmDeleteBtn" onclick="confirmDelete()">删除</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script>
+    // ========== Constants & State ==========
+    const STORAGE_KEY = 'myToolbox';
+    const ICON_COLORS = [
+      '#6366F1','#8B5CF6','#EC4899','#F43F5E','#F97316',
+      '#EAB308','#22C55E','#14B8A6','#06B6D4','#3B82F6'
+    ];
+
+    const EMOJI_LIST = [
+      '🔧','🛠️','📅','🌍','📝','💬','🤖','💻','📊','📧',
+      '🔍','📚','🎵','🎮','📷','🛒','💰','🏠','✈️','🍔',
+      '⚡','🔒','📱','🖥️','☁️','📡','🧪','🎯','📌','🗂️',
+      '✅','⭐','❤️','🔥','💎','🌙','☀️','🌈','🍀','🧰',
+      '🎨','🖌️','🎬','📹','🎤','📻','🗓️','⏰','🧭','🔔',
+      '💡','📦','🏗️','🔬','🧮','📐','🗺️','🌐','🔗','⚙️',
+    ];
+
+    let currentIconTab = 'auto';
+    let selectedToolEmoji = '';
+    let selectedToolIconData = '';  // base64 or URL
+
+    const DEFAULT_TOOLS = [
+      { id: uid(), name: 'Google 日历', url: 'https://calendar.google.com', category: '效率', description: '日程安排与时间管理' },
+      { id: uid(), name: 'Google 翻译', url: 'https://translate.google.com', category: '翻译', description: 'Google 提供的免费在线翻译服务' },
+      { id: uid(), name: 'Notion', url: 'https://www.notion.so', category: '效率', description: '全能型笔记与项目管理工具' },
+      { id: uid(), name: 'ChatGPT', url: 'https://chat.openai.com', category: 'AI', description: 'OpenAI 的智能对话助手' },
+      { id: uid(), name: 'GitHub', url: 'https://github.com', category: '开发', description: '全球最大的代码托管平台' },
+      { id: uid(), name: 'Stack Overflow', url: 'https://stackoverflow.com', category: '开发', description: '开发者问答社区' },
+      { id: uid(), name: '天气查询', url: 'https://www.weather.com', category: '生活', description: '全球天气预报与实时天气' },
+      { id: uid(), name: 'JSON 格式化', url: 'https://jsonformatter.org', category: '开发', description: '在线 JSON 格式化与校验工具' },
+    ];
+
+    let state = loadData();
+    let currentFilter = '全部';
+    let currentSearch = '';
+    let deleteTargetId = null;
+    let dragEnabled = state.settings?.dragEnabled ?? false;
+    let dragSourceId = null;
+
+    // ========== Utility Functions ==========
+    function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 9); }
+    function getDomain(url) { try { return new URL(url).hostname; } catch { return ''; } }
+    function getFavicon(url) { const d = getDomain(url); return d ? `https://www.google.com/s2/favicons?domain=${d}&sz=64` : ''; }
+    function getIconColor(name) {
+      let h = 0; for (let i = 0; i < name.length; i++) h = name.charCodeAt(i) + ((h << 5) - h);
+      return ICON_COLORS[Math.abs(h) % ICON_COLORS.length];
+    }
+    function isValidUrl(s) { try { const u = new URL(s); return u.protocol === 'http:' || u.protocol === 'https:'; } catch { return false; } }
+    function escapeHtml(str) { if (!str) return ''; const d = document.createElement('div'); d.textContent = str; return d.innerHTML; }
+    function escapeAttr(str) { if (!str) return ''; return str.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+    // ========== Data Persistence ==========
+    function loadData() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) { const p = JSON.parse(raw); if (p.tools && p.tools.length > 0) return p; }
+      } catch {}
+      const ds = {
+        tools: DEFAULT_TOOLS.map(t => ({ ...t, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() })),
+        categories: ['效率','开发','生活','翻译','AI'],
+        settings: { title: 'My Toolbox', theme: 'light', dragEnabled: false }
+      };
+      saveData(ds); return ds;
+    }
+
+    function saveData(data) { localStorage.setItem(STORAGE_KEY, JSON.stringify(data || state)); }
+
+    // ========== Theme ==========
+    function applyTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      updateThemeSwitchUI(theme);
+    }
+
+    function setTheme(theme) {
+      if (!state.settings) state.settings = {};
+      state.settings.theme = theme;
+      applyTheme(theme);
+    }
+
+    function updateThemeSwitchUI(theme) {
+      document.querySelectorAll('#themeSwitch button').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.theme === theme);
+      });
+    }
+
+    // ========== Site Title ==========
+    function applySiteTitle(title) {
+      document.getElementById('siteTitle').textContent = title;
+      document.title = title + ' - 个人工具汇总';
+      document.getElementById('footerText').textContent = `${title} © 2026 — 你的个人工具导航`;
+    }
+
+    // ========== Drag Mode ==========
+    function toggleDragMode(on) {
+      dragEnabled = on;
+      updateDragToggleUI(on);
+      renderCards();
+    }
+
+    function updateDragToggleUI(on) {
+      document.querySelectorAll('#dragToggle button').forEach(btn => {
+        btn.classList.toggle('active', (btn.dataset.val === 'on') === on);
+      });
+    }
+
+    // ========== Settings ==========
+    function openSettings() {
+      document.getElementById('settingTitle').value = state.settings?.title || 'My Toolbox';
+      updateThemeSwitchUI(state.settings?.theme || 'light');
+      updateDragToggleUI(dragEnabled);
+      // Restore logo icon state
+      settingsLogoData = state.settings?.logoIcon || { type: 'emoji', value: '🧰' };
+      updateLogoPreview();
+      document.getElementById('logoEmojiPickerWrap').style.display = 'none';
+      document.getElementById('settingsOverlay').classList.add('active');
+    }
+
+    function closeSettings() {
+      document.getElementById('settingsOverlay').classList.remove('active');
+    }
+
+    function saveSettings() {
+      if (!state.settings) state.settings = {};
+      const title = document.getElementById('settingTitle').value.trim() || 'My Toolbox';
+      state.settings.title = title;
+      state.settings.dragEnabled = dragEnabled;
+      state.settings.logoIcon = settingsLogoData;
+      applySiteTitle(title);
+      applyLogoIcon(settingsLogoData);
+      saveData();
+      closeSettings();
+      showToast('设置已保存', 'success');
+    }
+
+    // ========== Render ==========
+    function render() { renderCategories(); renderCards(); updateCount(); }
+
+    function renderCategories() {
+      const bar = document.getElementById('categoryBar');
+      const all = ['全部', ...state.categories];
+      bar.innerHTML = all.map(cat =>
+        `<span class="category-tag ${cat === currentFilter ? 'active' : ''}" onclick="filterByCategory('${escapeHtml(cat)}')">${escapeHtml(cat)}</span>`
+      ).join('');
+    }
+
+    function getFilteredTools() {
+      let tools = state.tools;
+      if (currentFilter !== '全部') tools = tools.filter(t => t.category === currentFilter);
+      if (currentSearch.trim()) {
+        const kw = currentSearch.toLowerCase();
+        tools = tools.filter(t =>
+          t.name.toLowerCase().includes(kw) ||
+          (t.description||'').toLowerCase().includes(kw) ||
+          (t.category||'').toLowerCase().includes(kw)
+        );
+      }
+      return tools;
+    }
+
+    function renderCards() {
+      const grid = document.getElementById('cardGrid');
+      const tools = getFilteredTools();
+
+      if (tools.length === 0) {
+        grid.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">📭</div>
+            <h3>${currentSearch || currentFilter !== '全部' ? '没有找到匹配的工具' : '还没有添加任何工具'}</h3>
+            <p>${currentSearch || currentFilter !== '全部' ? '试试调整搜索词或切换分类' : '点击下方按钮，添加你的第一个工具吧！'}</p>
+            ${!currentSearch && currentFilter === '全部' ? '<button class="btn btn-primary" onclick="openAddModal()">＋ 添加第一个工具</button>' : ''}
+          </div>`;
+        return;
+      }
+
+      grid.innerHTML = tools.map((tool, idx) => {
+        const color = getIconColor(tool.name);
+        const domain = getDomain(tool.url);
+        let iconHtml = '';
+        if (tool.iconType === 'emoji' && tool.iconEmoji) {
+          iconHtml = `<div class="tool-icon" style="background:${color}"><span class="icon-fallback" style="display:flex">${tool.iconEmoji}</span></div>`;
+        } else if (tool.iconType === 'custom' && tool.iconCustom) {
+          iconHtml = `<div class="tool-icon has-img" style="background:${color}"><img src="${escapeHtml(tool.iconCustom)}" alt="" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.innerHTML='<span class=icon-fallback style=display:flex>${tool.name.charAt(0).toUpperCase()}</span>'"></div>`;
+        } else {
+          const favicon = getFavicon(tool.url);
+          iconHtml = `<div class="tool-icon" style="background:${color}"><img src="${favicon}" alt="" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"><span class="icon-fallback" style="display:none">${tool.name.charAt(0).toUpperCase()}</span></div>`;
+        }
+        return `
+          <a class="tool-card" data-id="${tool.id}" style="animation-delay:${idx*0.05}s; text-decoration:none; color:inherit; display:block;"
+               ${dragEnabled ? `draggable="true" ondragstart="onDragStart(event)" ondragover="onDragOver(event)" ondragenter="onDragEnter(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)" ondragend="onDragEnd(event)"` : ''}
+               href="${escapeAttr(tool.url)}" target="_blank" rel="noopener"
+               ${dragEnabled ? 'onclick="event.preventDefault()"' : ''}
+               title="点击打开 ${escapeHtml(tool.name)}">
+            <div class="card-actions">
+              ${dragEnabled ? '<button class="btn btn-icon drag" onmousedown="event.stopPropagation()" title="拖拽排序">≡</button>' : ''}
+              <button class="btn btn-icon edit" onclick="event.preventDefault(); event.stopPropagation(); openEditModal('${tool.id}')" title="编辑">✏️</button>
+              <button class="btn btn-icon delete" onclick="event.preventDefault(); event.stopPropagation(); openConfirm('${tool.id}')" title="删除">🗑️</button>
+            </div>
+            ${iconHtml}
+            <div class="tool-name">${escapeHtml(tool.name)}</div>
+            ${tool.description ? `<div class="tool-desc">${escapeHtml(tool.description)}</div>` : ''}
+            <div class="tool-url">${escapeHtml(domain)}</div>
+            ${tool.category ? `<span class="tool-category-badge">${escapeHtml(tool.category)}</span>` : ''}
+          </a>`;
+      }).join('');
+    }
+
+    function updateCount() {
+      const tools = getFilteredTools();
+      const total = state.tools.length;
+      const el = document.getElementById('toolsCount');
+      el.textContent = (currentSearch || currentFilter !== '全部')
+        ? `找到 ${tools.length} 个工具（共 ${total} 个）`
+        : `共 ${total} 个工具`;
+    }
+
+    // ========== Drag & Drop ==========
+    function onDragStart(e) {
+      dragSourceId = e.currentTarget.dataset.id;
+      e.currentTarget.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    }
+
+    function onDragOver(e) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }
+
+    function onDragEnter(e) {
+      e.preventDefault();
+      const card = e.currentTarget;
+      if (card.dataset.id !== dragSourceId) card.classList.add('drag-over');
+    }
+
+    function onDragLeave(e) { e.currentTarget.classList.remove('drag-over'); }
+
+    function onDrop(e) {
+      e.preventDefault();
+      const targetId = e.currentTarget.dataset.id;
+      e.currentTarget.classList.remove('drag-over');
+      if (!dragSourceId || dragSourceId === targetId) return;
+
+      const srcIdx = state.tools.findIndex(t => t.id === dragSourceId);
+      const tgtIdx = state.tools.findIndex(t => t.id === targetId);
+      if (srcIdx === -1 || tgtIdx === -1) return;
+
+      const [moved] = state.tools.splice(srcIdx, 1);
+      state.tools.splice(tgtIdx, 0, moved);
+      saveData();
+      renderCards();
+      showToast('排序已更新', 'info');
+    }
+
+    function onDragEnd(e) {
+      e.currentTarget.classList.remove('dragging');
+      document.querySelectorAll('.tool-card').forEach(c => c.classList.remove('drag-over'));
+      dragSourceId = null;
+    }
+
+    // ========== Search ==========
+    document.getElementById('searchInput').addEventListener('input', function(e) {
+      currentSearch = e.target.value;
+      renderCards(); updateCount();
+    });
+
+    // ========== Category Filter ==========
+    function filterByCategory(cat) { currentFilter = cat; render(); }
+
+    // ========== Tool Modal ==========
+    function openAddModal() {
+      document.getElementById('modalTitle').textContent = '添加工具';
+      document.getElementById('editId').value = '';
+      document.getElementById('toolName').value = '';
+      document.getElementById('toolUrl').value = '';
+      document.getElementById('toolDesc').value = '';
+      resetCategorySelect('');
+      resetIconPicker('auto', '', '');
+      clearFormErrors();
+      showModal();
+    }
+
+    function openEditModal(id) {
+      const tool = state.tools.find(t => t.id === id);
+      if (!tool) return;
+      document.getElementById('modalTitle').textContent = '编辑工具';
+      document.getElementById('editId').value = id;
+      document.getElementById('toolName').value = tool.name;
+      document.getElementById('toolUrl').value = tool.url;
+      document.getElementById('toolDesc').value = tool.description || '';
+      resetCategorySelect(tool.category || '');
+      // Restore icon state
+      const iconType = tool.iconType || 'auto';
+      const emoji = tool.iconEmoji || '';
+      const custom = tool.iconCustom || '';
+      resetIconPicker(iconType, emoji, custom);
+      clearFormErrors();
+      showModal();
+    }
+
+    function resetCategorySelect(value) {
+      const sel = document.getElementById('toolCategorySelect');
+      const ni = document.getElementById('toolCategoryNew');
+      sel.innerHTML = '<option value="">选择分类...</option>';
+      state.categories.forEach(cat => {
+        sel.innerHTML += `<option value="${escapeHtml(cat)}" ${cat===value?'selected':''}>${escapeHtml(cat)}</option>`;
+      });
+      sel.innerHTML += '<option value="__new__">+ 新建分类</option>';
+      ni.style.display = 'none'; ni.value = '';
+      if (value && !state.categories.includes(value)) {
+        ni.style.display = ''; ni.value = value; sel.value = '__new__';
+      }
+    }
+
+    function handleCategoryChange() {
+      const sel = document.getElementById('toolCategorySelect');
+      const ni = document.getElementById('toolCategoryNew');
+      if (sel.value === '__new__') { ni.style.display = ''; ni.focus(); }
+      else { ni.style.display = 'none'; ni.value = ''; }
+    }
+
+    function showModal() {
+      document.getElementById('modalOverlay').classList.add('active');
+      setTimeout(() => document.getElementById('toolName').focus(), 200);
+    }
+
+    function closeModal() { document.getElementById('modalOverlay').classList.remove('active'); }
+
+    function handleOverlayClick(e, id) { if (e.target === e.currentTarget) document.getElementById(id).classList.remove('active'); }
+
+    function clearFormErrors() {
+      document.querySelectorAll('#modalOverlay .form-group input, #modalOverlay .form-group textarea').forEach(el => el.classList.remove('error'));
+      document.querySelectorAll('#modalOverlay .error-msg').forEach(el => el.classList.remove('show'));
+    }
+
+    // ========== Save Tool ==========
+    function saveTool() {
+      clearFormErrors();
+      const id = document.getElementById('editId').value;
+      const name = document.getElementById('toolName').value.trim();
+      const url = document.getElementById('toolUrl').value.trim();
+      const desc = document.getElementById('toolDesc').value.trim();
+      const sel = document.getElementById('toolCategorySelect');
+      const newCat = document.getElementById('toolCategoryNew').value.trim();
+      let category = sel.value === '__new__' ? newCat : sel.value;
+
+      let valid = true;
+      if (!name) { document.getElementById('toolName').classList.add('error'); document.getElementById('nameError').classList.add('show'); valid = false; }
+      if (!url || !isValidUrl(url)) { document.getElementById('toolUrl').classList.add('error'); document.getElementById('urlError').classList.add('show'); valid = false; }
+      if (!valid) return;
+
+      if (category && !state.categories.includes(category)) state.categories.push(category);
+
+      // Icon data
+      let iconType = currentIconTab;
+      let iconEmoji = selectedToolEmoji;
+      let iconCustom = selectedToolIconData;
+      if (iconType === 'url') {
+        iconCustom = document.getElementById('toolIconUrl').value.trim();
+        iconType = iconCustom ? 'custom' : 'auto';
+      } else if (iconType === 'upload') {
+        iconType = iconCustom ? 'custom' : 'auto';
+      } else if (iconType === 'emoji') {
+        iconType = iconEmoji ? 'emoji' : 'auto';
+      }
+
+      const now = new Date().toISOString();
+      if (id) {
+        const idx = state.tools.findIndex(t => t.id === id);
+        if (idx !== -1) state.tools[idx] = { ...state.tools[idx], name, url, category, description: desc, iconType, iconEmoji, iconCustom, updatedAt: now };
+        showToast('工具已更新', 'success');
+      } else {
+        state.tools.unshift({ id: uid(), name, url, category, description: desc, iconType, iconEmoji, iconCustom, createdAt: now, updatedAt: now });
+        showToast('工具已添加', 'success');
+      }
+      saveData(); closeModal(); render();
+    }
+
+    // ========== Icon Picker ==========
+    function initEmojiGrids() {
+      ['emojiGrid','logoEmojiGrid'].forEach(gridId => {
+        const grid = document.getElementById(gridId);
+        if (!grid) return;
+        grid.innerHTML = EMOJI_LIST.map(e => `<span onclick="${gridId === 'emojiGrid' ? 'selectToolEmoji' : 'selectLogoEmoji'}('${e}')">${e}</span>`).join('');
+      });
+    }
+
+    function switchIconTab(tab) {
+      currentIconTab = tab;
+      document.querySelectorAll('#iconPickerTabs button').forEach(btn => btn.classList.remove('active'));
+      document.querySelector(`#iconPickerTabs button[onclick*="${tab}"]`).classList.add('active');
+      document.querySelectorAll('.icon-tab-content').forEach(el => el.classList.remove('active'));
+      document.getElementById('iconTab-' + tab).classList.add('active');
+      updateToolIconPreview();
+    }
+
+    function resetIconPicker(type, emoji, custom) {
+      currentIconTab = type === 'custom' ? 'upload' : (type || 'auto');
+      selectedToolEmoji = emoji || '';
+      selectedToolIconData = custom || '';
+      // Reset URL input
+      const urlInput = document.getElementById('toolIconUrl');
+      if (urlInput) urlInput.value = (type === 'custom' && custom && !custom.startsWith('data:')) ? custom : '';
+      // Reset file input
+      const fileInput = document.getElementById('toolIconFile');
+      if (fileInput) fileInput.value = '';
+      // Reset tab UI
+      switchIconTab(currentIconTab === 'custom' ? (custom && custom.startsWith('data:') ? 'upload' : 'url') : (currentIconTab || 'auto'));
+      // Highlight emoji
+      document.querySelectorAll('#emojiGrid span').forEach(s => s.classList.toggle('selected', s.textContent === emoji));
+      updateToolIconPreview();
+    }
+
+    function selectToolEmoji(emoji) {
+      selectedToolEmoji = emoji;
+      selectedToolIconData = '';
+      document.querySelectorAll('#emojiGrid span').forEach(s => s.classList.toggle('selected', s.textContent === emoji));
+      updateToolIconPreview();
+    }
+
+    function previewIconFromUrl() {
+      selectedToolIconData = document.getElementById('toolIconUrl').value.trim();
+      selectedToolEmoji = '';
+      updateToolIconPreview();
+    }
+
+    function handleToolIconUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      if (file.size > 512 * 1024) { showToast('图片大小不能超过 512KB', 'error'); return; }
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        selectedToolIconData = e.target.result;
+        selectedToolEmoji = '';
+        updateToolIconPreview();
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function updateToolIconPreview() {
+      const box = document.getElementById('toolIconPreview');
+      if (currentIconTab === 'emoji' && selectedToolEmoji) {
+        box.className = 'icon-preview-box';
+        box.innerHTML = selectedToolEmoji;
+      } else if ((currentIconTab === 'url' || currentIconTab === 'upload') && selectedToolIconData) {
+        box.className = 'icon-preview-box has-img';
+        box.innerHTML = `<img src="${escapeHtml(selectedToolIconData)}" alt="" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.innerHTML='?'">`;
+      } else {
+        box.className = 'icon-preview-box';
+        box.innerHTML = '🌐';
+      }
+    }
+
+    // ========== Logo Icon Customization ==========
+    let settingsLogoData = { type: 'emoji', value: '🧰' };
+
+    function applyLogoIcon(data) {
+      const el = document.getElementById('logoIcon');
+      if (data.type === 'image') {
+        el.innerHTML = `<img src="${data.value}" alt="" style="width:100%;height:100%;object-fit:cover">`;
+      } else {
+        el.textContent = data.value || '🧰';
+      }
+    }
+
+    function updateLogoPreview() {
+      const el = document.getElementById('logoIconPreview');
+      if (settingsLogoData.type === 'image') {
+        el.innerHTML = `<img src="${settingsLogoData.value}" alt="" style="width:100%;height:100%;object-fit:cover">`;
+      } else {
+        el.innerHTML = ''; el.textContent = settingsLogoData.value || '🧰';
+      }
+    }
+
+    function openLogoEmojiPicker() {
+      const wrap = document.getElementById('logoEmojiPickerWrap');
+      wrap.style.display = wrap.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function selectLogoEmoji(emoji) {
+      settingsLogoData = { type: 'emoji', value: emoji };
+      updateLogoPreview();
+      document.getElementById('logoEmojiPickerWrap').style.display = 'none';
+    }
+
+    function handleLogoUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      if (file.size > 512 * 1024) { showToast('图片大小不能超过 512KB', 'error'); return; }
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        settingsLogoData = { type: 'image', value: e.target.result };
+        updateLogoPreview();
+      };
+      reader.readAsDataURL(file);
+      event.target.value = '';
+    }
+
+    function resetLogoIcon() {
+      settingsLogoData = { type: 'emoji', value: '🧰' };
+      updateLogoPreview();
+      document.getElementById('logoEmojiPickerWrap').style.display = 'none';
+    }
+
+    // ========== Delete ==========
+    function openConfirm(id) {
+      deleteTargetId = id;
+      const tool = state.tools.find(t => t.id === id);
+      document.getElementById('confirmMsg').textContent = `确定要删除「${tool?tool.name:''}」吗？此操作不可撤销。`;
+      document.getElementById('confirmOverlay').classList.add('active');
+    }
+    function closeConfirm() { document.getElementById('confirmOverlay').classList.remove('active'); deleteTargetId = null; }
+    function confirmDelete() {
+      if (!deleteTargetId) return;
+      state.tools = state.tools.filter(t => t.id !== deleteTargetId);
+      saveData(); closeConfirm(); render(); showToast('工具已删除', 'info');
+    }
+
+    // ========== Import / Export ==========
+    function exportData() {
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob); a.download = `my-toolbox-backup-${new Date().toISOString().slice(0,10)}.json`;
+      a.click(); URL.revokeObjectURL(a.href); showToast('数据已导出', 'success');
+    }
+
+    function importData(event) {
+      const file = event.target.files[0]; if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const data = JSON.parse(e.target.result);
+          if (!data.tools || !Array.isArray(data.tools)) { showToast('文件格式无效', 'error'); return; }
+          state = data;
+          if (!state.categories) state.categories = [];
+          if (!state.settings) state.settings = { title: 'My Toolbox', theme: 'light', dragEnabled: false };
+          state.tools.forEach(t => { if (t.category && !state.categories.includes(t.category)) state.categories.push(t.category); });
+          saveData();
+          applyTheme(state.settings.theme || 'light');
+          applySiteTitle(state.settings.title || 'My Toolbox');
+          dragEnabled = state.settings.dragEnabled ?? false;
+          render();
+          showToast(`成功导入 ${state.tools.length} 个工具`, 'success');
+        } catch { showToast('导入失败：JSON 解析错误', 'error'); }
+      };
+      reader.readAsText(file); event.target.value = '';
+    }
+
+    // ========== Toast ==========
+    function showToast(msg, type = 'info') {
+      const c = document.getElementById('toastContainer');
+      const icons = { success: '✅', error: '❌', info: 'ℹ️' };
+      const t = document.createElement('div');
+      t.className = `toast ${type}`;
+      t.innerHTML = `<span>${icons[type]||''}</span><span>${escapeHtml(msg)}</span>`;
+      c.appendChild(t);
+      setTimeout(() => { t.style.opacity='0'; t.style.transform='translateX(40px)'; t.style.transition='0.3s ease'; setTimeout(()=>t.remove(),300); }, 2500);
+    }
+
+    // ========== Keyboard ==========
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        if (document.getElementById('confirmOverlay').classList.contains('active')) closeConfirm();
+        else if (document.getElementById('settingsOverlay').classList.contains('active')) closeSettings();
+        else if (document.getElementById('modalOverlay').classList.contains('active')) closeModal();
+      }
+    });
+
+    // ========== Init ==========
+    (function init() {
+      if (!state.settings) state.settings = { title: 'My Toolbox', theme: 'light', dragEnabled: false };
+      applyTheme(state.settings.theme || 'light');
+      applySiteTitle(state.settings.title || 'My Toolbox');
+      dragEnabled = state.settings.dragEnabled ?? false;
+      // Logo icon
+      const logoData = state.settings.logoIcon || { type: 'emoji', value: '🧰' };
+      applyLogoIcon(logoData);
+      // Init emoji grids
+      initEmojiGrids();
+      render();
+    })();
+  </script>
+</body>
+</html>
