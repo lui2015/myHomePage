@@ -108,11 +108,10 @@
 <div id="authWrap" class="auth-wrap">
   <div class="auth-box">
     <h2>🔐 管理后台</h2>
-    <p class="sub">使用管理员账号登录</p>
+    <p class="sub">输入管理密码进入后台</p>
     <div class="auth-err" id="authErr"></div>
-    <div class="fg"><label>用户名</label><input id="aUser" placeholder="管理员用户名"></div>
-    <div class="fg"><label>密码</label><input id="aPass" type="password" placeholder="密码"></div>
-    <button class="btn btn-primary" onclick="doLogin()">登 录</button>
+    <div class="fg"><label>管理密码</label><input id="aPass" type="password" placeholder="请输入管理密码"></div>
+    <button class="btn btn-primary" onclick="doLogin()">进 入</button>
     <div style="text-align:center;margin-top:14px;font-size:13px;"><a href="/">← 返回首页</a></div>
   </div>
 </div>
@@ -257,16 +256,14 @@ async function api(path,opts={}){
 
 // ========== Auth ==========
 async function doLogin(){
-  const u=document.getElementById('aUser').value.trim(),p=document.getElementById('aPass').value;
+  const p=document.getElementById('aPass').value;
   const errEl=document.getElementById('authErr');errEl.classList.remove('show');
-  if(!u||!p){errEl.textContent='请输入用户名和密码';errEl.classList.add('show');return;}
+  if(!p){errEl.textContent='请输入管理密码';errEl.classList.add('show');return;}
   try{
-    const d=await api('/login',{method:'POST',body:{username:u,password:p}});
+    const d=await api('/admin/login',{method:'POST',body:{password:p}});
     token=d.token;localStorage.setItem('tb_admin_token',token);
-    // Check admin role
-    const me=await api('/me');
-    if(me.user.role!=='admin'){token='';localStorage.removeItem('tb_admin_token');errEl.textContent='该账号没有管理员权限';errEl.classList.add('show');return;}
-    currentUser=me.user;showApp();
+    currentUser={username:'管理员',role:'admin'};
+    showApp();
   }catch(e){errEl.textContent=e.message;errEl.classList.add('show');}
 }
 
@@ -512,7 +509,7 @@ document.addEventListener('keydown',e=>{
 // ========== Init ==========
 (async()=>{
   if(token){
-    try{const me=await api('/me');if(me.user.role!=='admin'){doLogout();return;}currentUser=me.user;showApp();}
+    try{await api('/admin/stats');currentUser={username:'管理员',role:'admin'};showApp();}
     catch{doLogout();}
   }
 })();

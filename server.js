@@ -6,7 +6,7 @@ const path = require('path');
 const crypto = require('crypto');
 
 // ========== Config ==========
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 const TOKEN_EXPIRY = '30d';
 
 // ========== Database Setup ==========
@@ -195,23 +195,43 @@ app.post('/api/login', (req, res) => {
 });
 
 // ========== Admin Middleware ==========
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'luli116574';
+
 function adminAuth(req, res, next) {
   const header = req.headers.authorization;
   if (!header || !header.startsWith('Bearer ')) {
     return res.status(401).json({ error: '未登录' });
   }
+  const tokenStr = header.slice(7);
+  // Try admin token first
   try {
-    const decoded = jwt.verify(header.slice(7), JWT_SECRET);
+    const decoded = jwt.verify(tokenStr, JWT_SECRET);
+    if (decoded.adminAccess) {
+      req.userId = null;
+      req.isAdminToken = true;
+      return next();
+    }
+    // Regular user token: check admin role
     req.userId = decoded.userId;
     const user = db.prepare('SELECT role FROM users WHERE id = ?').get(req.userId);
     if (!user || user.role !== 'admin') {
       return res.status(403).json({ error: '无管理员权限' });
     }
-    next();
+    req.isAdminToken = false;
+    return next();
   } catch {
     return res.status(401).json({ error: '登录已过期' });
   }
 }
+
+// Admin password login (no user account needed)
+app.post('/api/admin/login', (req, res) => {
+  const { password } = req.body;
+  if (!password) return res.status(400).json({ error: '请输入密码' });
+  if (password !== ADMIN_PASSWORD) return res.status(401).json({ error: '密码错误' });
+  const token = jwt.sign({ adminAccess: true }, JWT_SECRET, { expiresIn: '24h' });
+  res.json({ token });
+});
 
 // ========== Admin API ==========
 // Get all users with stats
@@ -326,7 +346,7 @@ app.put('/api/admin/users/:id/settings', adminAuth, (req, res) => {
     theme || 'light',
     dragEnabled ? 1 : 0,
     JSON.stringify(logoIcon || { type: 'emoji', value: '🧰' }),
-    clickEffect === false ? 0 : 1,
+    typeof clickEffect === 'string' ? clickEffect : (clickEffect === false ? 'off' : 'firework'),
     userId
   );
   res.json({ success: true });
@@ -362,7 +382,7 @@ app.get('/api/settings', auth, (req, res) => {
     theme: s.theme,
     dragEnabled: !!s.drag_enabled,
     logoIcon: JSON.parse(s.logo_icon || '{"type":"emoji","value":"🧰"}'),
-    clickEffect: s.click_effect == null ? true : !!s.click_effect
+    clickEffect: s.click_effect == null ? 'firework' : (s.click_effect === '0' || s.click_effect === 0 ? 'off' : (s.click_effect === '1' || s.click_effect === 1 ? 'firework' : s.click_effect))
   });
 });
 
@@ -373,7 +393,7 @@ app.put('/api/settings', auth, (req, res) => {
     theme || 'light',
     dragEnabled ? 1 : 0,
     JSON.stringify(logoIcon || { type: 'emoji', value: '🧰' }),
-    clickEffect === false ? 0 : 1,
+    typeof clickEffect === 'string' ? clickEffect : (clickEffect === false ? 'off' : 'firework'),
     req.userId
   );
   res.json({ success: true });

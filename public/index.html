@@ -156,11 +156,27 @@
     .category-tag:hover { color:var(--primary); }
     .category-tag.active { background:linear-gradient(135deg,var(--primary),var(--secondary)); color:white; box-shadow:0 2px 8px rgba(99,102,241,.3); }
     .main { max-width:1200px; margin:0 auto; padding:24px; }
-    .tools-count { font-size:13px; color:var(--text-light); margin-bottom:16px; }
+    .tools-count { font-size:13px; color:var(--text-light); margin-bottom:16px; display:flex; align-items:center; justify-content:space-between; }
+    .view-toggle { display:flex; background:var(--card-bg); border-radius:var(--radius-sm); border:1px solid var(--border); overflow:hidden; }
+    .view-toggle button { padding:5px 10px; border:none; background:transparent; cursor:pointer; font-size:14px; color:var(--text-light); transition:var(--transition); line-height:1; }
+    .view-toggle button.active { background:var(--primary); color:white; }
+    .view-toggle button:hover:not(.active) { color:var(--primary); }
     .card-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:20px; }
     @media(max-width:1199px){.card-grid{grid-template-columns:repeat(3,1fr);}}
     @media(max-width:767px){.card-grid{grid-template-columns:repeat(2,1fr);}}
     @media(max-width:479px){.card-grid{grid-template-columns:1fr;}}
+    /* List View */
+    .card-grid.list-view { grid-template-columns:1fr; gap:10px; }
+    .card-grid.list-view .tool-card { display:flex; align-items:center; gap:16px; padding:14px 20px; }
+    .card-grid.list-view .tool-card .card-actions { position:static; opacity:1; flex-shrink:0; }
+    .card-grid.list-view .tool-icon { margin-bottom:0; width:40px; height:40px; flex-shrink:0; font-size:18px; }
+    .card-grid.list-view .tool-icon img { width:24px; height:24px; }
+    .card-grid.list-view .tool-name { font-size:14px; margin-bottom:0; }
+    .card-grid.list-view .tool-desc { display:none; }
+    .card-grid.list-view .tool-url { margin-bottom:0; }
+    .card-grid.list-view .tool-category-badge { margin-top:0; }
+    .card-grid.list-view .list-info { flex:1; min-width:0; display:flex; align-items:center; gap:12px; }
+    .card-grid.list-view .list-meta { flex:1; min-width:0; }
     .tool-card { background:var(--card-bg); backdrop-filter:blur(20px); border-radius:var(--radius-lg); border:1px solid var(--card-border); padding:24px; cursor:pointer; transition:var(--transition); position:relative; overflow:hidden; animation:fadeInUp .4s ease-out both; user-select:none; text-decoration:none; color:inherit; display:block; }
     .tool-card:hover { transform:translateY(-4px); background:var(--card-bg-hover); box-shadow:var(--shadow-lg); }
     /* Click burst animation */
@@ -206,6 +222,38 @@
       0%   { transform:translate(-50%,-50%) scale(.2); opacity:.9; }
       100% { transform:translate(-50%,-50%) scale(8);  opacity:0; }
     }
+    /* Stars effect */
+    .fx-star { position:absolute; left:0; top:0; pointer-events:none;
+      background:var(--c,#FFD700); clip-path:polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);
+      animation:fxStar var(--d,800ms) ease-out forwards; }
+    @keyframes fxStar {
+      0%   { transform:translate(-50%,-50%) translate(0,0) scale(1) rotate(0deg); opacity:1; }
+      100% { transform:translate(-50%,-50%) translate(var(--tx,0),var(--ty,0)) scale(0) rotate(180deg); opacity:0; }
+    }
+    /* Confetti effect */
+    .fx-conf { position:absolute; left:0; top:0; pointer-events:none;
+      background:var(--c,#FF6B6B); border-radius:2px;
+      animation:fxConf var(--d,1000ms) cubic-bezier(.15,.6,.35,1) forwards; }
+    @keyframes fxConf {
+      0%   { transform:translate(-50%,-50%) translate(0,0) rotate(0deg) scale(1); opacity:1; }
+      100% { transform:translate(-50%,-50%) translate(var(--tx,0),var(--ty,0)) rotate(var(--rot,360deg)) scale(.3); opacity:0; }
+    }
+    /* Bubble effect */
+    .fx-bub { position:absolute; left:0; top:0; border-radius:50%; pointer-events:none;
+      background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.8), var(--c,#6366F1) 60%, transparent);
+      animation:fxBub var(--d,900ms) ease-out forwards; }
+    @keyframes fxBub {
+      0%   { transform:translate(-50%,-50%) translate(0,0) scale(.5); opacity:.9; }
+      50%  { opacity:.7; }
+      100% { transform:translate(-50%,-50%) translate(var(--tx,0),var(--ty,0)) scale(1.2); opacity:0; }
+    }
+    /* Effect picker */
+    .fx-picker { display:flex; flex-wrap:wrap; gap:8px; }
+    .fx-option { display:flex; flex-direction:column; align-items:center; gap:4px; padding:10px 12px; border-radius:var(--radius-sm); border:2px solid var(--border); cursor:pointer; transition:var(--transition); min-width:70px; text-align:center; }
+    .fx-option:hover { border-color:var(--primary); }
+    .fx-option.active { border-color:var(--primary); background:rgba(99,102,241,.08); }
+    .fx-option .fx-demo { font-size:20px; }
+    .fx-option .fx-label { font-size:11px; color:var(--text-secondary); font-weight:500; }
     @media (prefers-reduced-motion: reduce) {
       .tool-card.bursting, .tool-card.bursting .tool-icon { animation:none; }
       .fx-ripple, .fx-p, .fx-ring { display:none; }
@@ -252,6 +300,11 @@
     .fg textarea { resize:vertical; min-height:80px; }
     .cat-wrap { display:flex; gap:8px; } .cat-wrap select,.cat-wrap input { flex:1; }
     .mf { padding:0 24px 20px; display:flex; gap:10px; justify-content:flex-end; }
+    /* Category Chips */
+    .cat-chips { display:flex; flex-wrap:wrap; gap:6px; }
+    .cat-chip { display:inline-flex; align-items:center; gap:4px; padding:5px 14px; border-radius:16px; font-size:13px; font-weight:500; cursor:pointer; transition:var(--transition); border:1px solid var(--border); background:transparent; color:var(--text-secondary); user-select:none; }
+    .cat-chip:hover { border-color:var(--primary); color:var(--primary); }
+    .cat-chip.selected { background:linear-gradient(135deg,var(--primary),var(--secondary)); color:white; border-color:transparent; box-shadow:0 2px 6px rgba(99,102,241,.25); }
     /* Icon Picker */
     .ip-tabs { display:flex; gap:0; margin-bottom:12px; border-radius:var(--radius-sm); border:1px solid var(--border); overflow:hidden; }
     .ip-tabs button { flex:1; padding:7px 0; border:none; background:transparent; font-size:12px; font-weight:500; cursor:pointer; color:var(--text-secondary); transition:var(--transition); }
@@ -413,7 +466,7 @@
               <div class="dd-role" id="ddRole"></div>
             </div>
             <div class="dd-item" onclick="closeDropdown();openSettings()">⚙️ 设置</div>
-            <a href="/admin" class="dd-item" id="ddAdmin" style="display:none">🛡️ 管理后台</a>
+            <a href="/admin" class="dd-item">🛡️ 管理后台</a>
             <div class="dd-item" onclick="closeDropdown();exportData()">📤 导出数据</div>
             <div class="dd-item" onclick="closeDropdown();document.getElementById('importFile').click()">📥 导入数据</div>
             <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
@@ -425,7 +478,7 @@
     </div>
   </header>
   <nav class="category-bar" id="categoryBar"></nav>
-  <main class="main"><div class="tools-count" id="toolsCount"></div><div class="card-grid" id="cardGrid"></div></main>
+  <main class="main"><div class="tools-count"><span id="toolsCountText"></span><div class="view-toggle" id="viewToggle"><button title="网格视图" onclick="setView('grid')">▦</button><button title="列表视图" onclick="setView('list')">☰</button></div></div><div class="card-grid" id="cardGrid"></div></main>
 
   <!-- Hot / Recommended -->
   <section class="recommend-section" id="recommendSection">
@@ -469,7 +522,10 @@
         <div class="ip-tc" id="ipt-url"><input type="url" id="iconUrlInput" style="width:100%;padding:10px 14px;border:2px solid var(--border);border-radius:var(--radius-sm);font-size:14px;background:var(--input-bg);color:var(--text-main);outline:none;" placeholder="输入图片地址" oninput="iconUrlData=this.value.trim();updIpPreview()"></div>
         <div class="ip-tc" id="ipt-upload"><div class="upload-zone" onclick="document.getElementById('iconFileInput').click()"><div style="font-size:28px;margin-bottom:6px;">📁</div><div>点击选择图片</div><div style="font-size:11px;margin-top:4px;color:var(--text-light)">JPG/PNG/SVG/WebP, ≤512KB</div><input type="file" id="iconFileInput" accept="image/*" onchange="handleIconUpload(event)"></div></div>
       </div>
-      <div class="fg"><label>分类标签</label><div class="cat-wrap"><select id="toolCatSel" onchange="handleCatChange()"><option value="">选择分类...</option><option value="__new__">+ 新建分类</option></select><input type="text" id="toolCatNew" placeholder="新分类" style="display:none" maxlength="20"></div></div>
+      <div class="fg"><label>分类标签 <span style="font-weight:400;color:var(--text-light);font-size:11px;">（可多选）</span></label>
+        <div class="cat-chips" id="catChips"></div>
+        <div style="display:flex;gap:8px;margin-top:8px;"><input type="text" id="toolCatNew" placeholder="输入新分类，回车添加" maxlength="20" style="flex:1;padding:7px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;outline:none;background:var(--input-bg);color:var(--text-main);" onkeydown="if(event.key==='Enter'){event.preventDefault();addNewCat();}"><button type="button" class="btn btn-secondary btn-sm" onclick="addNewCat()" style="flex-shrink:0;">+ 添加</button></div>
+      </div>
       <div class="fg"><label>工具描述</label><textarea id="toolDesc" placeholder="简要描述..." maxlength="200"></textarea></div>
     </div>
     <div class="mf"><button class="btn btn-secondary" onclick="closeModal()">取消</button><button class="btn btn-primary" onclick="saveTool()">保存</button></div>
@@ -489,7 +545,16 @@
       <div id="liEmojiWrap" hidden style="padding:10px 0;"><div class="emoji-grid" id="liEmojiGrid"></div></div>
       <div class="sr" style="flex-direction:column;align-items:stretch;gap:4px;"><div class="sl">页面主题<small>选择你喜欢的风格</small></div><div class="theme-picker" id="themePicker"></div></div>
       <div class="sr"><div class="sl">拖拽排序<small>拖动卡片调整顺序</small></div><div class="ts" id="dToggle"><button data-v="on" onclick="dragOn=true;updDT()">开启</button><button data-v="off" onclick="dragOn=false;updDT()">关闭</button></div></div>
-      <div class="sr"><div class="sl">点击特效<small>点击卡片时的烟花动效</small></div><div class="ts" id="fxToggle"><button data-v="on" onclick="fxOn=true;updFX()">开启</button><button data-v="off" onclick="fxOn=false;updFX()">关闭</button></div></div>
+      <div class="sr" style="flex-direction:column;align-items:stretch;gap:8px;"><div class="sl">点击特效<small>点击卡片时的动画效果</small></div>
+        <div class="fx-picker" id="fxPicker">
+          <div class="fx-option" data-fx="off" onclick="setFxMode('off')"><div class="fx-demo">🚫</div><div class="fx-label">关闭</div></div>
+          <div class="fx-option" data-fx="firework" onclick="setFxMode('firework')"><div class="fx-demo">🎆</div><div class="fx-label">烟花</div></div>
+          <div class="fx-option" data-fx="stars" onclick="setFxMode('stars')"><div class="fx-demo">⭐</div><div class="fx-label">星光</div></div>
+          <div class="fx-option" data-fx="confetti" onclick="setFxMode('confetti')"><div class="fx-demo">🎊</div><div class="fx-label">彩纸屑</div></div>
+          <div class="fx-option" data-fx="bubbles" onclick="setFxMode('bubbles')"><div class="fx-demo">🫧</div><div class="fx-label">气泡</div></div>
+          <div class="fx-option" data-fx="ripple" onclick="setFxMode('ripple')"><div class="fx-demo">💧</div><div class="fx-label">水波</div></div>
+        </div>
+      </div>
     </div>
     <div class="mf"><button class="btn btn-primary" onclick="saveSetting()">保存设置</button></div>
   </div>
@@ -512,7 +577,8 @@ let user = null;
 let tools = [], categories = [], settings = {};
 let curFilter = '全部', curSearch = '', delId = null;
 let dragOn = false;
-let fxOn = true;
+let viewMode = localStorage.getItem('tb_viewMode') || 'grid';
+let fxMode = 'firework';
 let curIconTab = 'auto', iconEmoji = '', iconUrlData = '', iconUpData = '';
 let sLogoD = { type: 'emoji', value: '🧰' };
 
@@ -611,7 +677,6 @@ async function showApp() {
     document.getElementById('userAvatar').textContent = user.username.charAt(0).toUpperCase();
     document.getElementById('ddName').textContent = user.username;
     document.getElementById('ddRole').textContent = user.role === 'admin' ? '管理员' : '普通用户';
-    document.getElementById('ddAdmin').style.display = user.role === 'admin' ? '' : 'none';
     await loadAll();
   } catch { logout(); }
 }
@@ -620,7 +685,10 @@ async function loadAll() {
   const [tData, cData, sData] = await Promise.all([api('/tools'), api('/categories'), api('/settings')]);
   tools = tData.tools; categories = cData.categories; settings = sData;
   dragOn = settings.dragEnabled || false;
-  fxOn = settings.clickEffect !== false;
+  // Compat: old boolean clickEffect → new fxMode string
+  if (typeof settings.clickEffect === 'string') fxMode = settings.clickEffect;
+  else if (settings.clickEffect === false) fxMode = 'off';
+  else fxMode = 'firework';
   applyTheme(settings.theme || 'light');
   applyTitle(settings.title || 'My Toolbox');
   applyLogo(settings.logoIcon || {type:'emoji',value:'🧰'});
@@ -656,7 +724,8 @@ function updLiPrev() {
   else { el.innerHTML=''; el.textContent=sLogoD.value||'🧰'; }
 }
 function updDT() { document.querySelectorAll('#dToggle button').forEach(b=>b.classList.toggle('active',(b.dataset.v==='on')===dragOn)); }
-function updFX() { document.querySelectorAll('#fxToggle button').forEach(b=>b.classList.toggle('active',(b.dataset.v==='on')===fxOn)); }
+function setFxMode(m) { fxMode = m; updFxPicker(); }
+function updFxPicker() { document.querySelectorAll('#fxPicker .fx-option').forEach(o=>o.classList.toggle('active',o.dataset.fx===fxMode)); }
 
 // ========== Render ==========
 function render() { renderCats(); renderCards(); updCount(); renderRecommend(); }
@@ -668,23 +737,42 @@ function renderCats() {
 
 function getFiltered() {
   let t=tools;
-  if(curFilter!=='全部') t=t.filter(x=>x.category===curFilter);
+  if(curFilter!=='全部') t=t.filter(x=>(x.category||'').split(',').map(s=>s.trim()).includes(curFilter));
   if(curSearch.trim()) { const k=curSearch.toLowerCase(); t=t.filter(x=>x.name.toLowerCase().includes(k)||(x.description||'').toLowerCase().includes(k)||(x.category||'').toLowerCase().includes(k)); }
   return t;
 }
 
 function renderCards() {
   const grid=document.getElementById('cardGrid'), list=getFiltered();
+  grid.classList.toggle('list-view', viewMode === 'list');
   if(!list.length) {
     grid.innerHTML=`<div class="empty-state"><div class="ei">📭</div><h3>${curSearch||curFilter!=='全部'?'没有找到匹配的工具':'还没有添加任何工具'}</h3><p>${curSearch||curFilter!=='全部'?'试试调整搜索词或切换分类':'点击按钮添加你的第一个工具'}</p>${!curSearch&&curFilter==='全部'?'<button class="btn btn-primary" onclick="openAddModal()">＋ 添加第一个工具</button>':''}</div>`;
     return;
   }
+  const isListView = viewMode === 'list';
   grid.innerHTML=list.map((t,i)=>{
     const c=getColor(t.name), dom=getDomain(t.url);
     let ih='';
     if(t.iconType==='emoji'&&t.iconEmoji) ih=`<div class="tool-icon" style="background:${c}"><span style="display:flex;width:100%;height:100%;align-items:center;justify-content:center">${t.iconEmoji}</span></div>`;
     else if(t.iconType==='custom'&&t.iconCustom) ih=`<div class="tool-icon has-custom" style="background:${c}"><img src="${escA(t.iconCustom)}" alt="" onerror="this.parentElement.innerHTML='<span style=display:flex;width:100%;height:100%;align-items:center;justify-content:center>${t.name.charAt(0).toUpperCase()}</span>'"></div>`;
     else { const fv=getFav(t.url); ih=`<div class="tool-icon" style="background:${c}"><img src="${fv}" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span style="display:none;width:100%;height:100%;align-items:center;justify-content:center">${t.name.charAt(0).toUpperCase()}</span></div>`; }
+    if(isListView) {
+      return `<a class="tool-card" data-id="${t.id}" href="${escA(t.url)}" target="_blank" rel="noopener" style="animation-delay:${i*.02}s" ${dragOn?'data-draggable="true"':''}>
+        ${ih}
+        <div class="list-info">
+          <div class="list-meta">
+            <div class="tool-name">${esc(t.name)}</div>
+            <div class="tool-url">${esc(dom)}</div>
+          </div>
+          ${t.category?t.category.split(',').map(c=>c.trim()).filter(Boolean).map(c=>`<span class="tool-category-badge">${esc(c)}</span>`).join(''):''}
+        </div>
+        <div class="card-actions">
+          ${dragOn?'<button class="btn btn-icon drag-handle" style="cursor:grab" title="拖拽排序">≡</button>':''}
+          <button class="btn btn-icon edit" onclick="event.preventDefault();event.stopPropagation();openEditModal('${t.id}')" title="编辑">✏️</button>
+          <button class="btn btn-icon delete" onclick="event.preventDefault();event.stopPropagation();openDelConfirm('${t.id}')" title="删除">🗑️</button>
+        </div>
+      </a>`;
+    }
     return `<a class="tool-card" data-id="${t.id}" href="${escA(t.url)}" target="_blank" rel="noopener" style="animation-delay:${i*.05}s" ${dragOn?'data-draggable="true"':''}>
       <div class="card-actions">
         ${dragOn?'<button class="btn btn-icon drag-handle" style="cursor:grab" title="拖拽排序">≡</button>':''}
@@ -695,14 +783,30 @@ function renderCards() {
       <div class="tool-name">${esc(t.name)}</div>
       ${t.description?`<div class="tool-desc">${esc(t.description)}</div>`:''}
       <div class="tool-url">${esc(dom)}</div>
-      ${t.category?`<span class="tool-category-badge">${esc(t.category)}</span>`:''}
+      ${t.category?t.category.split(',').map(c=>c.trim()).filter(Boolean).map(c=>`<span class="tool-category-badge">${esc(c)}</span>`).join(''):''}
     </a>`;
   }).join('');
 }
 
 function updCount() {
-  const f=getFiltered(), el=document.getElementById('toolsCount');
+  const f=getFiltered(), el=document.getElementById('toolsCountText');
   el.textContent=(curSearch||curFilter!=='全部')?`找到 ${f.length} 个工具（共 ${tools.length} 个）`:`共 ${tools.length} 个工具`;
+  updViewToggle();
+}
+
+function setView(mode) {
+  viewMode = mode;
+  localStorage.setItem('tb_viewMode', mode);
+  renderCards();
+  updViewToggle();
+}
+
+function updViewToggle() {
+  document.querySelectorAll('#viewToggle button').forEach((b, i) => {
+    b.classList.toggle('active', (i === 0 && viewMode === 'grid') || (i === 1 && viewMode === 'list'));
+  });
+  const grid = document.getElementById('cardGrid');
+  grid.classList.toggle('list-view', viewMode === 'list');
 }
 
 // ========== Search ==========
@@ -777,20 +881,93 @@ function fxRippleOnCard(card, x, y) {
   card.appendChild(el);
   setTimeout(()=>el.remove(), 600);
 }
+
+function playEffect(mode, x, y) {
+  if (mode === 'firework') fxBurst(x, y);
+  else if (mode === 'stars') fxStars(x, y);
+  else if (mode === 'confetti') fxConfetti(x, y);
+  else if (mode === 'bubbles') fxBubbles(x, y);
+  // 'ripple' only uses the card ripple (already played above)
+}
+
+function fxStars(x, y) {
+  const layer = fxLayer();
+  const starColors = ['#FFD700','#FFA500','#FF6B6B','#6366F1','#22D3EE','#22C55E','#EC4899'];
+  for (let i = 0; i < 14; i++) {
+    const el = document.createElement('div');
+    el.className = 'fx-star';
+    const ang = (Math.PI * 2) * (i / 14) + Math.random() * 0.3;
+    const dist = 50 + Math.random() * 80;
+    const sz = 8 + Math.random() * 14;
+    const dur = 600 + Math.random() * 400;
+    el.style.left = x + 'px'; el.style.top = y + 'px';
+    el.style.width = sz + 'px'; el.style.height = sz + 'px';
+    el.style.setProperty('--tx', Math.cos(ang) * dist + 'px');
+    el.style.setProperty('--ty', Math.sin(ang) * dist + 'px');
+    el.style.setProperty('--c', starColors[i % starColors.length]);
+    el.style.setProperty('--d', dur + 'ms');
+    layer.appendChild(el);
+    setTimeout(() => el.remove(), dur + 50);
+  }
+}
+
+function fxConfetti(x, y) {
+  const layer = fxLayer();
+  const confColors = ['#FF6B6B','#4ECDC4','#FFE66D','#6366F1','#EC4899','#F97316','#22C55E','#06B6D4'];
+  for (let i = 0; i < 24; i++) {
+    const el = document.createElement('div');
+    el.className = 'fx-conf';
+    const ang = (Math.PI * 2) * Math.random();
+    const dist = 60 + Math.random() * 100;
+    const w = 6 + Math.random() * 6;
+    const h = 8 + Math.random() * 10;
+    const dur = 700 + Math.random() * 500;
+    const rot = (Math.random() - 0.5) * 720;
+    el.style.left = x + 'px'; el.style.top = y + 'px';
+    el.style.setProperty('--w', w + 'px'); el.style.setProperty('--h', h + 'px');
+    el.style.setProperty('--tx', Math.cos(ang) * dist + 'px');
+    el.style.setProperty('--ty', Math.sin(ang) * dist - 30 + 'px');
+    el.style.setProperty('--rot', rot + 'deg');
+    el.style.setProperty('--c', confColors[i % confColors.length]);
+    el.style.setProperty('--d', dur + 'ms');
+    layer.appendChild(el);
+    setTimeout(() => el.remove(), dur + 50);
+  }
+}
+
+function fxBubbles(x, y) {
+  const layer = fxLayer();
+  const bubColors = ['#6366F1','#8B5CF6','#06B6D4','#22C55E','#EC4899','#F97316','#3B82F6'];
+  for (let i = 0; i < 12; i++) {
+    const el = document.createElement('div');
+    el.className = 'fx-bub';
+    const ang = (Math.PI * 2) * (i / 12) + Math.random() * 0.4;
+    const dist = 40 + Math.random() * 70;
+    const sz = 10 + Math.random() * 18;
+    const dur = 700 + Math.random() * 400;
+    el.style.left = x + 'px'; el.style.top = y + 'px';
+    el.style.width = sz + 'px'; el.style.height = sz + 'px';
+    el.style.setProperty('--tx', Math.cos(ang) * dist + 'px');
+    el.style.setProperty('--ty', (Math.sin(ang) * dist - 40) + 'px');
+    el.style.setProperty('--c', bubColors[i % bubColors.length]);
+    el.style.setProperty('--d', dur + 'ms');
+    layer.appendChild(el);
+    setTimeout(() => el.remove(), dur + 50);
+  }
+}
 document.getElementById('cardGrid').addEventListener('click', e=>{
   const card = e.target.closest('.tool-card');
   if (!card) return;
   // Ignore action buttons (edit/delete/drag handle)
   if (e.target.closest('.card-actions')) return;
-  // Drag mode: don't navigate, but still play effect for feedback
   const inDrag = dragOn;
-  if (!fxOn && !inDrag) return; // nothing to do
+  if (fxMode==='off' && !inDrag) return;
   const url = card.getAttribute('href');
-  if (fxOn) {
+  if (fxMode!=='off') {
     e.preventDefault();
     card.classList.remove('bursting'); void card.offsetWidth; card.classList.add('bursting');
     fxRippleOnCard(card, e.clientX, e.clientY);
-    fxBurst(e.clientX, e.clientY);
+    playEffect(fxMode, e.clientX, e.clientY);
     setTimeout(()=>card.classList.remove('bursting'), 600);
     if (!inDrag && url) {
       setTimeout(()=>{ window.open(url, '_blank', 'noopener'); }, 260);
@@ -1081,18 +1258,48 @@ function openEditModal(id) {
 
 function closeModal(){document.getElementById('modalOverlay').classList.remove('active');}
 
+let selectedCats = [];
+
 function resetCatSel(v) {
-  const s=document.getElementById('toolCatSel'),n=document.getElementById('toolCatNew');
-  s.innerHTML='<option value="">选择分类...</option>';
-  categories.forEach(c=>s.innerHTML+=`<option value="${esc(c)}" ${c===v?'selected':''}>${esc(c)}</option>`);
-  s.innerHTML+='<option value="__new__">+ 新建分类</option>';
-  n.style.display='none';n.value='';
-  if(v&&!categories.includes(v)){n.style.display='';n.value=v;s.value='__new__';}
+  // v can be comma-separated string or single value
+  if (v) {
+    selectedCats = v.split(',').map(s => s.trim()).filter(Boolean);
+  } else {
+    selectedCats = [];
+  }
+  document.getElementById('toolCatNew').value = '';
+  renderCatChips();
 }
 
-function handleCatChange(){
-  const s=document.getElementById('toolCatSel'),n=document.getElementById('toolCatNew');
-  if(s.value==='__new__'){n.style.display='';n.focus();}else{n.style.display='none';n.value='';}
+function renderCatChips() {
+  const el = document.getElementById('catChips');
+  const allCats = [...new Set([...categories, ...selectedCats])].filter(Boolean);
+  el.innerHTML = allCats.map(c =>
+    `<span class="cat-chip ${selectedCats.includes(c) ? 'selected' : ''}" onclick="toggleCat('${esc(c)}')">${esc(c)}</span>`
+  ).join('');
+}
+
+function toggleCat(cat) {
+  if (selectedCats.includes(cat)) {
+    selectedCats = selectedCats.filter(c => c !== cat);
+  } else {
+    selectedCats.push(cat);
+  }
+  renderCatChips();
+}
+
+function addNewCat() {
+  const input = document.getElementById('toolCatNew');
+  const val = input.value.trim();
+  if (!val) return;
+  if (!selectedCats.includes(val)) {
+    selectedCats.push(val);
+  }
+  if (!categories.includes(val)) {
+    categories.push(val);
+  }
+  input.value = '';
+  renderCatChips();
 }
 
 function clearErr(){document.querySelectorAll('#modalOverlay .fg input').forEach(e=>e.classList.remove('err'));document.querySelectorAll('#modalOverlay .em').forEach(e=>e.classList.remove('show'));}
@@ -1103,9 +1310,7 @@ async function saveTool() {
   const name=document.getElementById('toolName').value.trim();
   const url=document.getElementById('toolUrl').value.trim();
   const desc=document.getElementById('toolDesc').value.trim();
-  const sel=document.getElementById('toolCatSel');
-  const nc=document.getElementById('toolCatNew').value.trim();
-  let cat=sel.value==='__new__'?nc:sel.value;
+  let cat=selectedCats.join(',');
 
   let ok=true;
   if(!name){document.getElementById('toolName').classList.add('err');document.getElementById('nameErr').classList.add('show');ok=false;}
@@ -1121,7 +1326,10 @@ async function saveTool() {
   try {
     if(id){await api('/tools/'+id,{method:'PUT',body});toast('工具已更新','success');}
     else{await api('/tools',{method:'POST',body});toast('工具已添加','success');}
-    if(cat&&!categories.includes(cat)){categories.push(cat);await api('/categories',{method:'PUT',body:{categories}});}
+    // Sync new categories
+    let needSync=false;
+    selectedCats.forEach(c=>{if(c&&!categories.includes(c)){categories.push(c);needSync=true;}});
+    if(needSync) await api('/categories',{method:'PUT',body:{categories}});
     await reloadTools(); closeModal(); render();
   }catch(e){toast(e.message,'error');}
 }
@@ -1140,7 +1348,7 @@ async function confirmDel(){
 function openSettings(){
   document.getElementById('setTitle').value=settings.title||'My Toolbox';
   sLogoD=settings.logoIcon||{type:'emoji',value:'🧰'};
-  updLiPrev(); renderThemePicker(); updDT(); updFX();
+  updLiPrev(); renderThemePicker(); updDT(); updFxPicker();
   document.getElementById('liEmojiWrap').hidden=true;
   document.getElementById('settingsOverlay').classList.add('active');
 }
@@ -1148,7 +1356,7 @@ function closeSetting(){document.getElementById('settingsOverlay').classList.rem
 
 async function saveSetting(){
   const title=document.getElementById('setTitle').value.trim()||'My Toolbox';
-  settings.title=title;settings.dragEnabled=dragOn;settings.logoIcon=sLogoD;settings.clickEffect=fxOn;
+  settings.title=title;settings.dragEnabled=dragOn;settings.logoIcon=sLogoD;settings.clickEffect=fxMode;
   applyTitle(title);applyLogo(sLogoD);
   try{await api('/settings',{method:'PUT',body:settings});toast('设置已保存','success');closeSetting();}
   catch(e){toast(e.message,'error');}
