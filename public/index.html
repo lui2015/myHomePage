@@ -700,6 +700,8 @@ async function loadAll() {
 function applyTheme(t) {
   if (!THEME_IDS.includes(t)) t = 'light';
   document.documentElement.setAttribute('data-theme', t);
+  // 缓存主题，供探索页等其他页面首屏无闪烁地同步
+  try { localStorage.setItem('tb_theme', t); } catch(e) {}
 }
 function setTheme(t) { settings.theme = t; applyTheme(t); renderThemePicker(); }
 function renderThemePicker() {
