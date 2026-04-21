@@ -4,3 +4,4 @@ toolbox.db
 .DS_Store
 *.log
 toolbox.db*
+jwt.secret

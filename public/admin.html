@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>管理后台 - My Toolbox</title>
+  <style>
+    :root {
+      --primary:#6366F1; --secondary:#8B5CF6; --bg:#F1F5F9; --card:#fff;
+      --text:#1E293B; --text2:#64748B; --text3:#94A3B8; --border:#E2E8F0;
+      --danger:#EF4444; --success:#10B981; --warn:#F59E0B;
+      --radius:12px; --radius-sm:8px;
+      --shadow:0 1px 3px rgba(0,0,0,0.08),0 1px 2px rgba(0,0,0,0.06);
+      --shadow-lg:0 4px 16px rgba(0,0,0,0.1);
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+    a{color:var(--primary);text-decoration:none;} a:hover{text-decoration:underline;}
+
+    /* Layout */
+    .topbar{background:#fff;border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+    .topbar h1{font-size:18px;display:flex;align-items:center;gap:8px;color:var(--primary);}
+    .topbar-right{display:flex;align-items:center;gap:12px;font-size:13px;color:var(--text2);}
+    .container{max-width:1100px;margin:0 auto;padding:24px;}
+
+    /* Stats */
+    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:28px;}
+    .stat-card{background:var(--card);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);}
+    .stat-card .num{font-size:32px;font-weight:700;color:var(--primary);}
+    .stat-card .label{font-size:13px;color:var(--text2);margin-top:4px;}
+
+    /* Table */
+    .panel{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;margin-bottom:24px;}
+    .panel-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+    .panel-header h2{font-size:16px;font-weight:600;}
+    .panel-header .badge{background:rgba(99,102,241,.1);color:var(--primary);padding:2px 10px;border-radius:12px;font-size:12px;font-weight:600;}
+    table{width:100%;border-collapse:collapse;}
+    th{text-align:left;padding:10px 16px;font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border);background:#FAFBFC;}
+    td{padding:12px 16px;border-bottom:1px solid var(--border);font-size:14px;vertical-align:middle;}
+    tr:last-child td{border-bottom:none;}
+    tr:hover td{background:#F8FAFC;}
+    .role-badge{display:inline-block;padding:2px 10px;border-radius:10px;font-size:11px;font-weight:600;}
+    .role-admin{background:rgba(99,102,241,.1);color:var(--primary);}
+    .role-user{background:rgba(100,116,139,.1);color:var(--text2);}
+
+    /* Buttons */
+    .btn{display:inline-flex;align-items:center;gap:4px;padding:6px 14px;border:none;border-radius:var(--radius-sm);font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;white-space:nowrap;}
+    .btn-sm{padding:4px 10px;font-size:12px;}
+    .btn-primary{background:var(--primary);color:#fff;} .btn-primary:hover{background:var(--secondary);}
+    .btn-outline{background:transparent;color:var(--primary);border:1px solid var(--border);} .btn-outline:hover{border-color:var(--primary);background:rgba(99,102,241,.05);}
+    .btn-danger{background:transparent;color:var(--danger);border:1px solid var(--border);} .btn-danger:hover{background:var(--danger);color:#fff;}
+    .btn-ghost{background:transparent;color:var(--text2);} .btn-ghost:hover{color:var(--primary);}
+    .btn-group{display:flex;gap:6px;}
+
+    /* Modal */
+    .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.4);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:1000;opacity:0;visibility:hidden;transition:all .25s;padding:24px;}
+    .modal-bg.open{opacity:1;visibility:visible;}
+    .modal{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow-lg);width:100%;max-width:560px;max-height:85vh;overflow-y:auto;transform:translateY(16px);transition:transform .25s;}
+    .modal-bg.open .modal{transform:translateY(0);}
+    .modal-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);}
+    .modal-head h3{font-size:16px;}
+    .modal-body{padding:20px;}
+    .modal-foot{padding:0 20px 16px;display:flex;justify-content:flex-end;gap:8px;}
+
+    /* Form */
+    .fg{margin-bottom:14px;}
+    .fg label{display:block;font-size:13px;font-weight:500;margin-bottom:4px;color:var(--text);}
+    .fg input,.fg select{width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:14px;outline:none;transition:border .2s;}
+    .fg input:focus,.fg select:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(99,102,241,.12);}
+
+    /* Detail */
+    .detail-section{margin-bottom:20px;}
+    .detail-section h4{font-size:14px;font-weight:600;margin-bottom:10px;color:var(--text2);display:flex;align-items:center;gap:6px;}
+    .detail-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;}
+    .detail-item{background:#F8FAFC;border-radius:var(--radius-sm);padding:10px 14px;}
+    .detail-item .dk{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;}
+    .detail-item .dv{font-size:14px;font-weight:500;margin-top:2px;word-break:break-all;}
+    .tool-mini{display:flex;align-items:center;gap:10px;padding:8px 12px;background:#F8FAFC;border-radius:var(--radius-sm);margin-bottom:6px;}
+    .tool-mini-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;flex-shrink:0;}
+    .tool-mini-info{flex:1;min-width:0;}
+    .tool-mini-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .tool-mini-url{font-size:11px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .tool-mini-actions{display:flex;gap:4px;}
+
+    /* Auth page */
+    .auth-wrap{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px;}
+    .auth-box{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow-lg);padding:36px;max-width:380px;width:100%;}
+    .auth-box h2{text-align:center;margin-bottom:4px;color:var(--primary);font-size:20px;}
+    .auth-box .sub{text-align:center;color:var(--text2);font-size:13px;margin-bottom:20px;}
+    .auth-box .btn-primary{width:100%;justify-content:center;padding:10px;font-size:14px;}
+    .auth-err{color:var(--danger);font-size:13px;text-align:center;margin-bottom:10px;display:none;}
+    .auth-err.show{display:block;}
+
+    /* Toast */
+    .toast-wrap{position:fixed;top:16px;right:16px;z-index:2000;display:flex;flex-direction:column;gap:8px;}
+    .toast{background:#fff;border-radius:var(--radius-sm);box-shadow:var(--shadow-lg);padding:10px 18px;font-size:13px;display:flex;align-items:center;gap:8px;animation:slideIn .3s;min-width:200px;}
+    .toast.ok{border-left:3px solid var(--success);} .toast.err{border-left:3px solid var(--danger);} .toast.info{border-left:3px solid var(--primary);}
+    @keyframes slideIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
+
+    /* Responsive */
+    @media(max-width:640px){.stats{grid-template-columns:1fr;}.detail-grid{grid-template-columns:1fr;}}
+    [hidden]{display:none!important;}
+  </style>
+</head>
+<body>
+
+<!-- Auth -->
+<div id="authWrap" class="auth-wrap">
+  <div class="auth-box">
+    <h2>🔐 管理后台</h2>
+    <p class="sub">使用管理员账号登录</p>
+    <div class="auth-err" id="authErr"></div>
+    <div class="fg"><label>用户名</label><input id="aUser" placeholder="管理员用户名"></div>
+    <div class="fg"><label>密码</label><input id="aPass" type="password" placeholder="密码"></div>
+    <button class="btn btn-primary" onclick="doLogin()">登 录</button>
+    <div style="text-align:center;margin-top:14px;font-size:13px;"><a href="/">← 返回首页</a></div>
+  </div>
+</div>
+
+<!-- App -->
+<div id="appWrap" hidden>
+  <div class="topbar">
+    <h1>🛡️ 管理后台</h1>
+    <div class="topbar-right">
+      <a href="/" style="font-size:13px">← 返回首页</a>
+      <span id="adminName"></span>
+      <button class="btn btn-ghost btn-sm" onclick="doLogout()">退出</button>
+    </div>
+  </div>
+  <div class="container">
+    <!-- Stats -->
+    <div class="stats" id="statsArea">
+      <div class="stat-card"><div class="num" id="sUsers">-</div><div class="label">注册用户</div></div>
+      <div class="stat-card"><div class="num" id="sTools">-</div><div class="label">工具总数</div></div>
+      <div class="stat-card"><div class="num" id="sCats">-</div><div class="label">分类总数</div></div>
+    </div>
+    <!-- User Table -->
+    <div class="panel">
+      <div class="panel-header"><h2>用户管理</h2><span class="badge" id="userCountBadge">0 人</span></div>
+      <table>
+        <thead><tr><th>ID</th><th>用户名</th><th>角色</th><th>工具数</th><th>分类数</th><th>注册时间</th><th>操作</th></tr></thead>
+        <tbody id="userTbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- User Detail Modal -->
+<div class="modal-bg" id="detailModal" onclick="if(event.target===this)closeDetail()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-head"><h3 id="detailTitle">用户详情</h3><button class="btn btn-ghost" onclick="closeDetail()">✕</button></div>
+    <div class="modal-body" id="detailBody"></div>
+  </div>
+</div>
+
+<!-- Reset Password Modal -->
+<div class="modal-bg" id="pwdModal" onclick="if(event.target===this)closePwd()">
+  <div class="modal" style="max-width:380px" onclick="event.stopPropagation()">
+    <div class="modal-head"><h3>重置密码</h3><button class="btn btn-ghost" onclick="closePwd()">✕</button></div>
+    <div class="modal-body">
+      <p style="font-size:13px;color:var(--text2);margin-bottom:12px;">为用户 <strong id="pwdUser"></strong> 设置新密码</p>
+      <div class="fg"><label>新密码</label><input id="pwdInput" type="password" placeholder="至少6个字符" minlength="6"></div>
+    </div>
+    <div class="modal-foot"><button class="btn btn-outline" onclick="closePwd()">取消</button><button class="btn btn-primary" onclick="doResetPwd()">确认重置</button></div>
+  </div>
+</div>
+
+<!-- Tool Edit/Add Modal -->
+<div class="modal-bg" id="toolModal" onclick="if(event.target===this)closeToolModal()">
+  <div class="modal" style="max-width:480px" onclick="event.stopPropagation()">
+    <div class="modal-head"><h3 id="toolModalTitle">编辑工具</h3><button class="btn btn-ghost" onclick="closeToolModal()">✕</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="tmToolId">
+      <input type="hidden" id="tmUserId">
+      <div class="fg"><label>工具名称 *</label><input id="tmName" placeholder="如：Google 翻译" maxlength="50"></div>
+      <div class="fg"><label>工具地址 *</label><input id="tmUrl" placeholder="如：https://translate.google.com"></div>
+      <div class="fg"><label>分类标签</label><input id="tmCategory" placeholder="如：效率、开发" maxlength="20"></div>
+      <div class="fg"><label>工具描述</label><textarea id="tmDesc" placeholder="简要描述..." maxlength="200" style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:14px;outline:none;font-family:inherit;min-height:70px;resize:vertical;"></textarea></div>
+      <div class="fg"><label>图标类型</label>
+        <select id="tmIconType" onchange="onIconTypeChange()">
+          <option value="auto">自动获取</option>
+          <option value="emoji">Emoji</option>
+          <option value="custom">自定义图片URL</option>
+        </select>
+      </div>
+      <div class="fg" id="tmEmojiWrap" style="display:none"><label>Emoji</label><input id="tmIconEmoji" placeholder="如：🔧" maxlength="4"></div>
+      <div class="fg" id="tmCustomWrap" style="display:none"><label>图片URL</label><input id="tmIconCustom" placeholder="https://example.com/icon.png"></div>
+    </div>
+    <div class="modal-foot"><button class="btn btn-outline" onclick="closeToolModal()">取消</button><button class="btn btn-primary" onclick="saveToolModal()">保存</button></div>
+  </div>
+</div>
+
+<!-- Settings Edit Modal -->
+<div class="modal-bg" id="settModal" onclick="if(event.target===this)closeSettModal()">
+  <div class="modal" style="max-width:440px" onclick="event.stopPropagation()">
+    <div class="modal-head"><h3 id="settModalTitle">编辑用户设置</h3><button class="btn btn-ghost" onclick="closeSettModal()">✕</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="smUserId">
+      <div class="fg"><label>网站标题</label><input id="smTitle" placeholder="My Toolbox" maxlength="30"></div>
+      <div class="fg"><label>页面主题</label>
+        <select id="smTheme">
+          <option value="light">☀️ 亮色 (light)</option>
+          <option value="dark">🌙 暗色 (dark)</option>
+          <option value="cyberpunk">🌆 赛博朋克 (cyberpunk)</option>
+          <option value="forest">🌲 森林 (forest)</option>
+          <option value="sunset">🌅 日落 (sunset)</option>
+          <option value="ocean">🌊 海洋 (ocean)</option>
+        </select>
+      </div>
+      <div class="fg"><label>拖拽排序</label>
+        <select id="smDrag"><option value="0">关闭</option><option value="1">开启</option></select>
+      </div>
+      <div class="fg"><label>点击特效</label>
+        <select id="smClick"><option value="1">开启</option><option value="0">关闭</option></select>
+      </div>
+    </div>
+    <div class="modal-foot"><button class="btn btn-outline" onclick="closeSettModal()">取消</button><button class="btn btn-primary" onclick="saveSettModal()">保存设置</button></div>
+  </div>
+</div>
+
+<!-- Confirm Modal -->
+<div class="modal-bg" id="confirmModal" onclick="if(event.target===this)closeConfirm()">
+  <div class="modal" style="max-width:360px;text-align:center" onclick="event.stopPropagation()">
+    <div class="modal-body" style="padding:28px;">
+      <div style="font-size:40px;margin-bottom:10px;">⚠️</div>
+      <h3 id="confirmTitle" style="margin-bottom:8px;"></h3>
+      <p id="confirmMsg" style="font-size:14px;color:var(--text2);margin-bottom:20px;"></p>
+      <div style="display:flex;gap:10px;justify-content:center;">
+        <button class="btn btn-outline" style="flex:1" onclick="closeConfirm()">取消</button>
+        <button class="btn btn-danger" style="flex:1;background:var(--danger);color:#fff;border:none;" id="confirmBtn" onclick="">确认</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+let token = localStorage.getItem('tb_admin_token') || '';
+let currentUser = null;
+let allUsers = [];
+let pendingPwdUserId = null;
+const COLORS = ['#6366F1','#8B5CF6','#EC4899','#F43F5E','#F97316','#EAB308','#22C55E','#14B8A6','#06B6D4','#3B82F6'];
+function getColor(n){let h=0;for(let i=0;i<n.length;i++)h=n.charCodeAt(i)+((h<<5)-h);return COLORS[Math.abs(h)%COLORS.length]}
+function esc(s){if(!s)return'';const d=document.createElement('div');d.textContent=s;return d.innerHTML}
+function toast(msg,type='info'){const w=document.getElementById('toastWrap'),t=document.createElement('div');const ic={ok:'✅',err:'❌',info:'ℹ️'};t.className='toast '+type;t.innerHTML=`<span>${ic[type]||''}</span>${esc(msg)}`;w.appendChild(t);setTimeout(()=>{t.style.opacity='0';t.style.transition='.3s';setTimeout(()=>t.remove(),300)},2500);}
+function fmtDate(s){if(!s)return'-';try{const d=new Date(s+'Z');return d.toLocaleDateString('zh-CN')+' '+d.toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'})}catch{return s}}
+
+async function api(path,opts={}){
+  const headers={'Content-Type':'application/json'};
+  if(token)headers['Authorization']='Bearer '+token;
+  const res=await fetch('/api'+path,{...opts,headers,body:opts.body?JSON.stringify(opts.body):undefined});
+  const data=await res.json();
+  if(!res.ok){if(res.status===401||res.status===403){doLogout();}throw new Error(data.error||'请求失败');}
+  return data;
+}
+
+// ========== Auth ==========
+async function doLogin(){
+  const u=document.getElementById('aUser').value.trim(),p=document.getElementById('aPass').value;
+  const errEl=document.getElementById('authErr');errEl.classList.remove('show');
+  if(!u||!p){errEl.textContent='请输入用户名和密码';errEl.classList.add('show');return;}
+  try{
+    const d=await api('/login',{method:'POST',body:{username:u,password:p}});
+    token=d.token;localStorage.setItem('tb_admin_token',token);
+    // Check admin role
+    const me=await api('/me');
+    if(me.user.role!=='admin'){token='';localStorage.removeItem('tb_admin_token');errEl.textContent='该账号没有管理员权限';errEl.classList.add('show');return;}
+    currentUser=me.user;showApp();
+  }catch(e){errEl.textContent=e.message;errEl.classList.add('show');}
+}
+
+function doLogout(){token='';currentUser=null;localStorage.removeItem('tb_admin_token');document.getElementById('appWrap').hidden=true;document.getElementById('authWrap').hidden=false;}
+
+async function showApp(){
+  document.getElementById('authWrap').hidden=true;document.getElementById('appWrap').hidden=false;
+  document.getElementById('adminName').textContent='👤 '+currentUser.username;
+  await loadData();
+}
+
+async function loadData(){
+  try{
+    const[stats,userData]=await Promise.all([api('/admin/stats'),api('/admin/users')]);
+    document.getElementById('sUsers').textContent=stats.userCount;
+    document.getElementById('sTools').textContent=stats.toolCount;
+    document.getElementById('sCats').textContent=stats.catCount;
+    allUsers=userData.users;renderUsers();
+  }catch(e){toast(e.message,'err');}
+}
+
+function renderUsers(){
+  document.getElementById('userCountBadge').textContent=allUsers.length+' 人';
+  const tbody=document.getElementById('userTbody');
+  tbody.innerHTML=allUsers.map(u=>`<tr>
+    <td>${u.id}</td>
+    <td><strong>${esc(u.username)}</strong></td>
+    <td><span class="role-badge ${u.role==='admin'?'role-admin':'role-user'}">${u.role==='admin'?'管理员':'普通用户'}</span></td>
+    <td>${u.tool_count}</td>
+    <td>${u.category_count}</td>
+    <td style="font-size:13px;color:var(--text2)">${fmtDate(u.created_at)}</td>
+    <td><div class="btn-group">
+      <button class="btn btn-outline btn-sm" onclick="viewDetail(${u.id})">查看</button>
+      <button class="btn btn-outline btn-sm" onclick="openResetPwd(${u.id},'${esc(u.username)}')">重置密码</button>
+      <button class="btn btn-outline btn-sm" onclick="toggleRole(${u.id},'${u.role}')">${u.role==='admin'?'取消管理员':'设为管理员'}</button>
+      ${u.id!==currentUser.id?`<button class="btn btn-danger btn-sm" onclick="confirmDeleteUser(${u.id},'${esc(u.username)}')">删除</button>`:''}
+    </div></td>
+  </tr>`).join('');
+}
+
+// ========== User Detail ==========
+async function viewDetail(id){
+  try{
+    const d=await api('/admin/users/'+id);
+    const u=d.user,s=d.settings,tools=d.tools,cats=d.categories;
+    document.getElementById('detailTitle').textContent=u.username+' 的详情';
+    let html=`<div class="detail-section"><h4>📋 基本信息</h4><div class="detail-grid">
+      <div class="detail-item"><div class="dk">用户名</div><div class="dv">${esc(u.username)}</div></div>
+      <div class="detail-item"><div class="dk">角色</div><div class="dv">${u.role==='admin'?'管理员':'普通用户'}</div></div>
+      <div class="detail-item"><div class="dk">注册时间</div><div class="dv">${fmtDate(u.created_at)}</div></div>
+      <div class="detail-item"><div class="dk">工具数量</div><div class="dv">${tools.length}</div></div>
+    </div></div>`;
+    if(s){html+=`<div class="detail-section"><h4>⚙️ 个性化设置 <button class="btn btn-outline btn-sm" style="margin-left:auto" onclick="openSettEdit(${u.id})">编辑设置</button></h4><div class="detail-grid">
+      <div class="detail-item"><div class="dk">网站标题</div><div class="dv">${esc(s.title)}</div></div>
+      <div class="detail-item"><div class="dk">主题</div><div class="dv">${s.theme}</div></div>
+      <div class="detail-item"><div class="dk">拖拽排序</div><div class="dv">${s.dragEnabled?'开启':'关闭'}</div></div>
+      <div class="detail-item"><div class="dk">点击特效</div><div class="dv">${s.clickEffect!==false?'开启':'关闭'}</div></div>
+    </div></div>`;}
+    if(cats.length){html+=`<div class="detail-section"><h4>🏷️ 分类标签</h4><div style="display:flex;gap:6px;flex-wrap:wrap">${cats.map(c=>`<span style="padding:3px 12px;border-radius:12px;font-size:12px;background:rgba(99,102,241,.1);color:var(--primary)">${esc(c)}</span>`).join('')}</div></div>`;}
+    html+=`<div class="detail-section"><h4>🔧 工具列表 (${tools.length}) <button class="btn btn-primary btn-sm" style="margin-left:auto" onclick="openAddTool(${u.id})">＋ 添加工具</button></h4>`;
+    if(tools.length){tools.forEach(t=>{
+      const c=getColor(t.name);
+      html+=`<div class="tool-mini">
+        <div class="tool-mini-icon" style="background:${c}">${t.iconType==='emoji'&&t.iconEmoji?t.iconEmoji:t.name.charAt(0).toUpperCase()}</div>
+        <div class="tool-mini-info"><div class="tool-mini-name">${esc(t.name)}</div><div class="tool-mini-url">${esc(t.url)}</div></div>
+        <div class="tool-mini-actions">
+          ${t.category?`<span style="font-size:11px;padding:2px 8px;border-radius:8px;background:#F1F5F9;color:var(--text2)">${esc(t.category)}</span>`:''}
+          <button class="btn btn-outline btn-sm" onclick="openEditTool('${t.id}',${u.id})">编辑</button>
+          <button class="btn btn-danger btn-sm" onclick="confirmDeleteTool('${t.id}','${esc(t.name)}',${u.id})">删除</button>
+        </div>
+      </div>`;
+    });}else{html+=`<p style="color:var(--text3);font-size:13px;">暂无工具</p>`;}
+    html+=`</div>`;
+    document.getElementById('detailBody').innerHTML=html;
+    document.getElementById('detailModal').classList.add('open');
+  }catch(e){toast(e.message,'err');}
+}
+function closeDetail(){document.getElementById('detailModal').classList.remove('open');}
+
+// ========== Reset Password ==========
+function openResetPwd(id,name){pendingPwdUserId=id;document.getElementById('pwdUser').textContent=name;document.getElementById('pwdInput').value='';document.getElementById('pwdModal').classList.add('open');}
+function closePwd(){document.getElementById('pwdModal').classList.remove('open');pendingPwdUserId=null;}
+async function doResetPwd(){
+  const pwd=document.getElementById('pwdInput').value;
+  if(!pwd||pwd.length<6){toast('密码至少6个字符','err');return;}
+  try{await api('/admin/users/'+pendingPwdUserId+'/password',{method:'PUT',body:{password:pwd}});toast('密码已重置','ok');closePwd();}catch(e){toast(e.message,'err');}
+}
+
+// ========== Toggle Role ==========
+async function toggleRole(id,currentRole){
+  const newRole=currentRole==='admin'?'user':'admin';
+  try{await api('/admin/users/'+id+'/role',{method:'PUT',body:{role:newRole}});toast('角色已更新','ok');await loadData();}catch(e){toast(e.message,'err');}
+}
+
+// ========== Delete User ==========
+function confirmDeleteUser(id,name){
+  document.getElementById('confirmTitle').textContent='删除用户';
+  document.getElementById('confirmMsg').textContent=`确定要删除用户「${name}」吗？该用户的所有工具和设置将被永久删除。`;
+  document.getElementById('confirmBtn').onclick=async()=>{
+    try{await api('/admin/users/'+id,{method:'DELETE'});toast('用户已删除','ok');closeConfirm();await loadData();}catch(e){toast(e.message,'err');}
+  };
+  document.getElementById('confirmModal').classList.add('open');
+}
+function closeConfirm(){document.getElementById('confirmModal').classList.remove('open');}
+
+// ========== Delete Tool ==========
+function confirmDeleteTool(toolId,name,userId){
+  document.getElementById('confirmTitle').textContent='删除工具';
+  document.getElementById('confirmMsg').textContent=`确定要删除工具「${name}」吗？`;
+  document.getElementById('confirmBtn').onclick=async()=>{
+    try{await api('/admin/tools/'+toolId,{method:'DELETE'});toast('工具已删除','ok');closeConfirm();viewDetail(userId);}catch(e){toast(e.message,'err');}
+  };
+  document.getElementById('confirmModal').classList.add('open');
+}
+
+// ========== Tool Modal (Edit / Add) ==========
+let toolModalUserId = null;
+
+function onIconTypeChange(){
+  const v=document.getElementById('tmIconType').value;
+  document.getElementById('tmEmojiWrap').style.display=v==='emoji'?'':'none';
+  document.getElementById('tmCustomWrap').style.display=v==='custom'?'':'none';
+}
+
+function openAddTool(userId){
+  toolModalUserId=userId;
+  document.getElementById('toolModalTitle').textContent='添加工具';
+  document.getElementById('tmToolId').value='';
+  document.getElementById('tmUserId').value=userId;
+  document.getElementById('tmName').value='';
+  document.getElementById('tmUrl').value='';
+  document.getElementById('tmCategory').value='';
+  document.getElementById('tmDesc').value='';
+  document.getElementById('tmIconType').value='auto';
+  document.getElementById('tmIconEmoji').value='';
+  document.getElementById('tmIconCustom').value='';
+  onIconTypeChange();
+  document.getElementById('toolModal').classList.add('open');
+  setTimeout(()=>document.getElementById('tmName').focus(),200);
+}
+
+async function openEditTool(toolId, userId){
+  toolModalUserId=userId;
+  try{
+    // Get tool data from detail
+    const d=await api('/admin/users/'+userId);
+    const t=d.tools.find(x=>x.id===toolId);
+    if(!t){toast('工具不存在','err');return;}
+    document.getElementById('toolModalTitle').textContent='编辑工具';
+    document.getElementById('tmToolId').value=toolId;
+    document.getElementById('tmUserId').value=userId;
+    document.getElementById('tmName').value=t.name;
+    document.getElementById('tmUrl').value=t.url;
+    document.getElementById('tmCategory').value=t.category||'';
+    document.getElementById('tmDesc').value=t.description||'';
+    document.getElementById('tmIconType').value=t.iconType||'auto';
+    document.getElementById('tmIconEmoji').value=t.iconEmoji||'';
+    document.getElementById('tmIconCustom').value=t.iconCustom||'';
+    onIconTypeChange();
+    document.getElementById('toolModal').classList.add('open');
+  }catch(e){toast(e.message,'err');}
+}
+
+function closeToolModal(){document.getElementById('toolModal').classList.remove('open');toolModalUserId=null;}
+
+async function saveToolModal(){
+  const toolId=document.getElementById('tmToolId').value;
+  const userId=parseInt(document.getElementById('tmUserId').value);
+  const name=document.getElementById('tmName').value.trim();
+  const url=document.getElementById('tmUrl').value.trim();
+  const category=document.getElementById('tmCategory').value.trim();
+  const description=document.getElementById('tmDesc').value.trim();
+  const iconType=document.getElementById('tmIconType').value;
+  const iconEmoji=document.getElementById('tmIconEmoji').value.trim();
+  const iconCustom=document.getElementById('tmIconCustom').value.trim();
+
+  if(!name){toast('请输入工具名称','err');return;}
+  if(!url){toast('请输入工具地址','err');return;}
+
+  const body={name,url,category,description,iconType,iconEmoji,iconCustom};
+  try{
+    if(toolId){
+      await api('/admin/tools/'+toolId,{method:'PUT',body});
+      toast('工具已更新','ok');
+    }else{
+      await api('/admin/tools',{method:'POST',body:{...body,userId}});
+      toast('工具已添加','ok');
+    }
+    closeToolModal();
+    viewDetail(userId);
+    await loadData();
+  }catch(e){toast(e.message,'err');}
+}
+
+// ========== Settings Modal ==========
+let settDetailUserId = null;
+
+async function openSettEdit(userId){
+  settDetailUserId=userId;
+  try{
+    const d=await api('/admin/users/'+userId);
+    const s=d.settings||{};
+    document.getElementById('smUserId').value=userId;
+    document.getElementById('smTitle').value=s.title||'My Toolbox';
+    document.getElementById('smTheme').value=s.theme||'light';
+    document.getElementById('smDrag').value=s.dragEnabled?'1':'0';
+    document.getElementById('smClick').value=(s.clickEffect!==false)?'1':'0';
+    document.getElementById('settModalTitle').textContent=`编辑 ${d.user.username} 的设置`;
+    document.getElementById('settModal').classList.add('open');
+  }catch(e){toast(e.message,'err');}
+}
+
+function closeSettModal(){document.getElementById('settModal').classList.remove('open');settDetailUserId=null;}
+
+async function saveSettModal(){
+  const userId=parseInt(document.getElementById('smUserId').value);
+  const body={
+    title:document.getElementById('smTitle').value.trim()||'My Toolbox',
+    theme:document.getElementById('smTheme').value,
+    dragEnabled:document.getElementById('smDrag').value==='1',
+    clickEffect:document.getElementById('smClick').value==='1',
+    logoIcon:{type:'emoji',value:'🧰'}
+  };
+  // Preserve existing logoIcon
+  try{
+    const d=await api('/admin/users/'+userId);
+    if(d.settings&&d.settings.logoIcon)body.logoIcon=d.settings.logoIcon;
+  }catch{}
+  try{
+    await api('/admin/users/'+userId+'/settings',{method:'PUT',body});
+    toast('设置已更新','ok');
+    closeSettModal();
+    viewDetail(userId);
+  }catch(e){toast(e.message,'err');}
+}
+
+// ========== Keyboard ==========
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){closeDetail();closePwd();closeConfirm();closeToolModal();closeSettModal();}
+  if(e.key==='Enter'&&!document.getElementById('authWrap').hidden)doLogin();
+});
+
+// ========== Init ==========
+(async()=>{
+  if(token){
+    try{const me=await api('/me');if(me.user.role!=='admin'){doLogout();return;}currentUser=me.user;showApp();}
+    catch{doLogout();}
+  }
+})();
+</script>
+</body>
+</html>
