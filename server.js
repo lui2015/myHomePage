@@ -90,6 +90,8 @@ function ensureColumn(table, column, ddl) {
 }
 ensureColumn('settings', 'click_effect', 'click_effect INTEGER DEFAULT 1');
 ensureColumn('users', 'role', "role TEXT DEFAULT 'user'");
+ensureColumn('tools', 'icon_bg', "icon_bg TEXT DEFAULT ''");
+ensureColumn('tools', 'card_bg', "card_bg TEXT DEFAULT ''");
 
 // Ensure first user is admin
 const firstUser = db.prepare('SELECT id FROM users ORDER BY id ASC LIMIT 1').get();
@@ -106,8 +108,8 @@ const stmts = {
   updateSettings: db.prepare('UPDATE settings SET title=?, theme=?, drag_enabled=?, logo_icon=?, click_effect=? WHERE user_id=?'),
   getTools: db.prepare('SELECT * FROM tools WHERE user_id = ? ORDER BY sort_order ASC, created_at DESC'),
   getTool: db.prepare('SELECT * FROM tools WHERE id = ? AND user_id = ?'),
-  createTool: db.prepare('INSERT INTO tools (id, user_id, name, url, category, description, icon_type, icon_emoji, icon_custom, sort_order) VALUES (?,?,?,?,?,?,?,?,?,?)'),
-  updateTool: db.prepare("UPDATE tools SET name=?, url=?, category=?, description=?, icon_type=?, icon_emoji=?, icon_custom=?, updated_at=datetime('now') WHERE id=? AND user_id=?"),
+  createTool: db.prepare('INSERT INTO tools (id, user_id, name, url, category, description, icon_type, icon_emoji, icon_custom, icon_bg, card_bg, sort_order) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)'),
+  updateTool: db.prepare("UPDATE tools SET name=?, url=?, category=?, description=?, icon_type=?, icon_emoji=?, icon_custom=?, icon_bg=?, card_bg=?, updated_at=datetime('now') WHERE id=? AND user_id=?"),
   deleteTool: db.prepare('DELETE FROM tools WHERE id = ? AND user_id = ?'),
   updateToolOrder: db.prepare('UPDATE tools SET sort_order = ? WHERE id = ? AND user_id = ?'),
   getCategories: db.prepare('SELECT name FROM categories WHERE user_id = ? ORDER BY id ASC'),
@@ -136,7 +138,7 @@ const initNewUser = db.transaction((userId) => {
   stmts.createSettings.run(userId);
   DEFAULT_CATEGORIES.forEach(cat => stmts.addCategory.run(userId, cat));
   DEFAULT_TOOLS.forEach((t, i) => {
-    stmts.createTool.run(uid(), userId, t.name, t.url, t.category, t.description, 'auto', '', '', i);
+    stmts.createTool.run(uid(), userId, t.name, t.url, t.category, t.description, 'auto', '', '', '', '', i);
   });
 });
 
@@ -252,7 +254,8 @@ app.get('/api/admin/users/:id', adminAuth, (req, res) => {
   const tools = stmts.getTools.all(user.id).map(t => ({
     id: t.id, name: t.name, url: t.url, category: t.category,
     description: t.description, iconType: t.icon_type, iconEmoji: t.icon_emoji,
-    iconCustom: t.icon_custom, sortOrder: t.sort_order, createdAt: t.created_at
+    iconCustom: t.icon_custom, iconBg: t.icon_bg || '', cardBg: t.card_bg || '',
+    sortOrder: t.sort_order, createdAt: t.created_at
   }));
   const settings = stmts.getSettings.get(user.id);
   const categories = stmts.getCategories.all(user.id).map(c => c.name);
@@ -306,12 +309,12 @@ app.delete('/api/admin/tools/:id', adminAuth, (req, res) => {
 
 // Edit a tool of any user
 app.put('/api/admin/tools/:id', adminAuth, (req, res) => {
-  const { name, url, category, description, iconType, iconEmoji, iconCustom } = req.body;
+  const { name, url, category, description, iconType, iconEmoji, iconCustom, iconBg, cardBg } = req.body;
   if (!name || !url) return res.status(400).json({ error: '名称和地址不能为空' });
   const tool = db.prepare('SELECT * FROM tools WHERE id = ?').get(req.params.id);
   if (!tool) return res.status(404).json({ error: '工具不存在' });
-  db.prepare("UPDATE tools SET name=?, url=?, category=?, description=?, icon_type=?, icon_emoji=?, icon_custom=?, updated_at=datetime('now') WHERE id=?")
-    .run(name, url, category || '', description || '', iconType || 'auto', iconEmoji || '', iconCustom || '', req.params.id);
+  db.prepare("UPDATE tools SET name=?, url=?, category=?, description=?, icon_type=?, icon_emoji=?, icon_custom=?, icon_bg=?, card_bg=?, updated_at=datetime('now') WHERE id=?")
+    .run(name, url, category || '', description || '', iconType || 'auto', iconEmoji || '', iconCustom || '', iconBg || '', cardBg || '', req.params.id);
   if (category) {
     db.prepare('INSERT OR IGNORE INTO categories (user_id, name) VALUES (?, ?)').run(tool.user_id, category);
   }
@@ -320,13 +323,13 @@ app.put('/api/admin/tools/:id', adminAuth, (req, res) => {
 
 // Add a tool for any user
 app.post('/api/admin/tools', adminAuth, (req, res) => {
-  const { userId, name, url, category, description, iconType, iconEmoji, iconCustom } = req.body;
+  const { userId, name, url, category, description, iconType, iconEmoji, iconCustom, iconBg, cardBg } = req.body;
   if (!userId || !name || !url) return res.status(400).json({ error: '用户ID、名称和地址不能为空' });
   const user = db.prepare('SELECT id FROM users WHERE id = ?').get(userId);
   if (!user) return res.status(404).json({ error: '用户不存在' });
   const id = uid();
   const maxOrder = stmts.getMaxOrder.get(userId).max_order;
-  stmts.createTool.run(id, userId, name, url, category || '', description || '', iconType || 'auto', iconEmoji || '', iconCustom || '', maxOrder + 1);
+  stmts.createTool.run(id, userId, name, url, category || '', description || '', iconType || 'auto', iconEmoji || '', iconCustom || '', iconBg || '', cardBg || '', maxOrder + 1);
   if (category) {
     db.prepare('INSERT OR IGNORE INTO categories (user_id, name) VALUES (?, ?)').run(userId, category);
   }
@@ -424,6 +427,8 @@ app.get('/api/tools', auth, (req, res) => {
     iconType: t.icon_type,
     iconEmoji: t.icon_emoji,
     iconCustom: t.icon_custom,
+    iconBg: t.icon_bg || '',
+    cardBg: t.card_bg || '',
     sortOrder: t.sort_order,
     createdAt: t.created_at,
     updatedAt: t.updated_at,
@@ -432,22 +437,22 @@ app.get('/api/tools', auth, (req, res) => {
 });
 
 app.post('/api/tools', auth, (req, res) => {
-  const { name, url, category, description, iconType, iconEmoji, iconCustom } = req.body;
+  const { name, url, category, description, iconType, iconEmoji, iconCustom, iconBg, cardBg } = req.body;
   if (!name || !url) return res.status(400).json({ error: '名称和地址不能为空' });
   const id = uid();
   const maxOrder = stmts.getMaxOrder.get(req.userId).max_order;
-  stmts.createTool.run(id, req.userId, name, url, category || '', description || '', iconType || 'auto', iconEmoji || '', iconCustom || '', maxOrder + 1);
+  stmts.createTool.run(id, req.userId, name, url, category || '', description || '', iconType || 'auto', iconEmoji || '', iconCustom || '', iconBg || '', cardBg || '', maxOrder + 1);
   if (category) stmts.addCategory.run(req.userId, category);
   const tool = stmts.getTool.get(id, req.userId);
-  res.json({ tool: { id: tool.id, name: tool.name, url: tool.url, category: tool.category, description: tool.description, iconType: tool.icon_type, iconEmoji: tool.icon_emoji, iconCustom: tool.icon_custom, sortOrder: tool.sort_order } });
+  res.json({ tool: { id: tool.id, name: tool.name, url: tool.url, category: tool.category, description: tool.description, iconType: tool.icon_type, iconEmoji: tool.icon_emoji, iconCustom: tool.icon_custom, iconBg: tool.icon_bg || '', cardBg: tool.card_bg || '', sortOrder: tool.sort_order } });
 });
 
 app.put('/api/tools/:id', auth, (req, res) => {
-  const { name, url, category, description, iconType, iconEmoji, iconCustom } = req.body;
+  const { name, url, category, description, iconType, iconEmoji, iconCustom, iconBg, cardBg } = req.body;
   if (!name || !url) return res.status(400).json({ error: '名称和地址不能为空' });
   const existing = stmts.getTool.get(req.params.id, req.userId);
   if (!existing) return res.status(404).json({ error: '工具不存在' });
-  stmts.updateTool.run(name, url, category || '', description || '', iconType || 'auto', iconEmoji || '', iconCustom || '', req.params.id, req.userId);
+  stmts.updateTool.run(name, url, category || '', description || '', iconType || 'auto', iconEmoji || '', iconCustom || '', iconBg || '', cardBg || '', req.params.id, req.userId);
   if (category) stmts.addCategory.run(req.userId, category);
   res.json({ success: true });
 });

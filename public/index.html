@@ -321,6 +321,21 @@
     .upload-zone { border:2px dashed var(--border); border-radius:var(--radius-sm); padding:20px; text-align:center; cursor:pointer; transition:var(--transition); color:var(--text-secondary); font-size:13px; }
     .upload-zone:hover { border-color:var(--primary); color:var(--primary); }
     .upload-zone input { display:none; }
+    /* Color Picker (per-tool bg / card bg) */
+    .color-picker-row { display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding:6px 0; }
+    .color-picker-row .cp-label { font-size:12px; color:var(--text-secondary); min-width:72px; }
+    .color-swatches { display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
+    .color-swatch { width:24px; height:24px; border-radius:50%; cursor:pointer; border:2px solid var(--border); transition:var(--transition); position:relative; box-sizing:border-box; }
+    .color-swatch:hover { transform:scale(1.12); border-color:var(--text-secondary); }
+    .color-swatch.sel { border-color:var(--primary); box-shadow:0 0 0 2px rgba(99,102,241,.25); transform:scale(1.12); }
+    .color-swatch.auto { background:linear-gradient(135deg,#E2E8F0 0%,#E2E8F0 50%,#94A3B8 50%,#94A3B8 100%); position:relative; }
+    .color-swatch.auto::after { content:'A'; position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:#1E293B; }
+    html[data-theme="dark"] .color-swatch.auto,
+    html[data-theme="cyberpunk"] .color-swatch.auto { background:linear-gradient(135deg,#334155 0%,#334155 50%,#64748B 50%,#64748B 100%); }
+    html[data-theme="dark"] .color-swatch.auto::after,
+    html[data-theme="cyberpunk"] .color-swatch.auto::after { color:#F1F5F9; }
+    .color-swatch-custom { width:28px; height:24px; padding:0; border:2px solid var(--border); border-radius:6px; cursor:pointer; background:transparent; overflow:hidden; }
+    .color-swatch-custom input[type="color"] { width:120%; height:120%; border:none; padding:0; margin:-10% 0 0 -10%; cursor:pointer; background:transparent; }
     /* Settings */
     .settings-panel .modal { max-width:420px; }
     .sr { display:flex; align-items:center; justify-content:space-between; padding:14px 0; border-bottom:1px solid var(--border); gap:12px; }
@@ -522,6 +537,18 @@
         <div class="ip-tc" id="ipt-url"><input type="url" id="iconUrlInput" style="width:100%;padding:10px 14px;border:2px solid var(--border);border-radius:var(--radius-sm);font-size:14px;background:var(--input-bg);color:var(--text-main);outline:none;" placeholder="输入图片地址" oninput="iconUrlData=this.value.trim();updIpPreview()"></div>
         <div class="ip-tc" id="ipt-upload"><div class="upload-zone" onclick="document.getElementById('iconFileInput').click()"><div style="font-size:28px;margin-bottom:6px;">📁</div><div>点击选择图片</div><div style="font-size:11px;margin-top:4px;color:var(--text-light)">JPG/PNG/SVG/WebP, ≤512KB</div><input type="file" id="iconFileInput" accept="image/*" onchange="handleIconUpload(event)"></div></div>
       </div>
+      <div class="fg"><label>图标背景色</label>
+        <div class="color-picker-row">
+          <div class="color-swatches" id="iconBgSwatches"></div>
+          <label class="color-swatch-custom" title="自定义颜色"><input type="color" id="iconBgCustom" oninput="setIconBg(this.value)"></label>
+        </div>
+      </div>
+      <div class="fg"><label>卡片背景色</label>
+        <div class="color-picker-row">
+          <div class="color-swatches" id="cardBgSwatches"></div>
+          <label class="color-swatch-custom" title="自定义颜色"><input type="color" id="cardBgCustom" oninput="setCardBg(this.value)"></label>
+        </div>
+      </div>
       <div class="fg"><label>分类标签 <span style="font-weight:400;color:var(--text-light);font-size:11px;">（可多选）</span></label>
         <div class="cat-chips" id="catChips"></div>
         <div style="display:flex;gap:8px;margin-top:8px;"><input type="text" id="toolCatNew" placeholder="输入新分类，回车添加" maxlength="20" style="flex:1;padding:7px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;outline:none;background:var(--input-bg);color:var(--text-main);" onkeydown="if(event.key==='Enter'){event.preventDefault();addNewCat();}"><button type="button" class="btn btn-secondary btn-sm" onclick="addNewCat()" style="flex-shrink:0;">+ 添加</button></div>
@@ -602,6 +629,10 @@ let dragOn = false;
 let viewMode = localStorage.getItem('tb_viewMode') || 'grid';
 let fxMode = 'firework';
 let curIconTab = 'auto', iconEmoji = '', iconUrlData = '', iconUpData = '';
+// Per-tool custom colors. Empty string = auto (follow theme / getColor).
+let iconBgData = '', cardBgData = '';
+const ICON_BG_PRESETS = ['#6366F1','#8B5CF6','#EC4899','#F43F5E','#F97316','#EAB308','#22C55E','#14B8A6','#06B6D4','#3B82F6','#0F172A','#FFFFFF'];
+const CARD_BG_PRESETS = ['#FFFFFF','#F1F5F9','#FEF3C7','#DCFCE7','#DBEAFE','#FCE7F3','#EDE9FE','#FFE4E6','#1E293B','#0F172A','#312E81','#3B0764'];
 let sLogoD = { type: 'emoji', value: '🧰' };
 
 const EMOJIS = ['🔧','🛠️','📅','🌍','📝','💬','🤖','💻','📊','📧','🔍','📚','🎵','🎮','📷','🛒','💰','🏠','✈️','🍔','⚡','🔒','📱','🖥️','☁️','📡','🧪','🎯','📌','🗂️','✅','⭐','❤️','🔥','💎','🌙','☀️','🌈','🍀','🧰','🎨','🖌️','🎬','📹','🎤','📻','🗓️','⏰','🧭','🔔','💡','📦','🏗️','🔬','🧮','📐','🗺️','🌐','🔗','⚙️'];
@@ -635,6 +666,16 @@ function escA(s) { return s ? s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').rep
 function getDomain(u) { try{return new URL(u).hostname}catch{return ''} }
 function getFav(u) { const d=getDomain(u); return d?`https://www.google.com/s2/favicons?domain=${d}&sz=64`:'' }
 function getColor(n) { let h=0;for(let i=0;i<n.length;i++)h=n.charCodeAt(i)+((h<<5)-h);return COLORS[Math.abs(h)%COLORS.length] }
+// Lighten a hex color by pct (0-100). Non-hex values return original.
+function lightenColor(hex, pct) {
+  if(!hex || typeof hex!=='string') return hex;
+  const m = hex.trim().match(/^#?([0-9a-fA-F]{6})$/); if(!m) return hex;
+  const n = parseInt(m[1], 16);
+  const r = (n>>16)&0xff, g = (n>>8)&0xff, b = n&0xff;
+  const f = pct/100;
+  const lr = Math.round(r + (255-r)*f), lg = Math.round(g + (255-g)*f), lb = Math.round(b + (255-b)*f);
+  return `#${((lr<<16)|(lg<<8)|lb).toString(16).padStart(6,'0')}`;
+}
 function isUrl(s) { try{const u=new URL(s);return u.protocol==='http:'||u.protocol==='https:'}catch{return false} }
 function uid() { return Date.now().toString(36)+Math.random().toString(36).slice(2,9) }
 function toast(msg, type='info') {
@@ -775,13 +816,16 @@ function renderCards() {
   }
   const isListView = viewMode === 'list';
   grid.innerHTML=list.map((t,i)=>{
-    const c=getColor(t.name), dom=getDomain(t.url);
+    const c=(t.iconBg&&t.iconBg.trim())?t.iconBg:getColor(t.name), dom=getDomain(t.url);
+    const cardStyleExtra = (t.cardBg&&t.cardBg.trim())
+      ? `background:${t.cardBg};--card-bg:${t.cardBg};--card-bg-hover:${lightenColor(t.cardBg,8)};`
+      : '';
     let ih='';
     if(t.iconType==='emoji'&&t.iconEmoji) ih=`<div class="tool-icon" style="background:${c}"><span style="display:flex;width:100%;height:100%;align-items:center;justify-content:center">${t.iconEmoji}</span></div>`;
     else if(t.iconType==='custom'&&t.iconCustom) ih=`<div class="tool-icon has-custom" style="background:${c}"><img src="${escA(t.iconCustom)}" alt="" onerror="this.parentElement.innerHTML='<span style=display:flex;width:100%;height:100%;align-items:center;justify-content:center>${t.name.charAt(0).toUpperCase()}</span>'"></div>`;
     else { const fv=getFav(t.url); ih=`<div class="tool-icon" style="background:${c}"><img src="${fv}" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span style="display:none;width:100%;height:100%;align-items:center;justify-content:center">${t.name.charAt(0).toUpperCase()}</span></div>`; }
     if(isListView) {
-      return `<a class="tool-card" data-id="${t.id}" href="${escA(t.url)}" target="_blank" rel="noopener" style="animation-delay:${i*.02}s" ${dragOn?'data-draggable="true"':''}>
+      return `<a class="tool-card" data-id="${t.id}" href="${escA(t.url)}" target="_blank" rel="noopener" style="animation-delay:${i*.02}s;${cardStyleExtra}" ${dragOn?'data-draggable="true"':''}>
         ${ih}
         <div class="list-info">
           <div class="list-meta">
@@ -797,7 +841,7 @@ function renderCards() {
         </div>
       </a>`;
     }
-    return `<a class="tool-card" data-id="${t.id}" href="${escA(t.url)}" target="_blank" rel="noopener" style="animation-delay:${i*.05}s" ${dragOn?'data-draggable="true"':''}>
+    return `<a class="tool-card" data-id="${t.id}" href="${escA(t.url)}" target="_blank" rel="noopener" style="animation-delay:${i*.05}s;${cardStyleExtra}" ${dragOn?'data-draggable="true"':''}>
       <div class="card-actions">
         ${dragOn?'<button class="btn btn-icon drag-handle" style="cursor:grab" title="拖拽排序">≡</button>':''}
         <button class="btn btn-icon edit" onclick="event.preventDefault();event.stopPropagation();openEditModal('${t.id}')" title="编辑">✏️</button>
@@ -1287,6 +1331,34 @@ function resetIconPicker(type,emoji,custom) {
   document.querySelectorAll('#emojiGrid span').forEach(s=>s.classList.toggle('sel',s.textContent===iconEmoji));
 }
 
+// ========== Per-tool Color Picker ==========
+function renderBgSwatches(containerId, presets, curVal, setter) {
+  const el = document.getElementById(containerId); if(!el) return;
+  const items = [{v:'', auto:true, title:'跟随主题（自动）'}].concat(presets.map(c=>({v:c, title:c})));
+  el.innerHTML = items.map(it =>
+    `<div class="color-swatch${it.auto?' auto':''}${(curVal||'')===it.v?' sel':''}"
+         style="${it.auto?'':`background:${it.v}`}"
+         data-v="${it.v}" title="${it.title}"
+         onclick="${setter}('${it.v}')"></div>`
+  ).join('');
+}
+function renderIconBgSwatches() { renderBgSwatches('iconBgSwatches', ICON_BG_PRESETS, iconBgData, 'setIconBg'); }
+function renderCardBgSwatches() { renderBgSwatches('cardBgSwatches', CARD_BG_PRESETS, cardBgData, 'setCardBg'); }
+function setIconBg(v) {
+  iconBgData = v || '';
+  renderIconBgSwatches();
+  const ci = document.getElementById('iconBgCustom'); if(ci && v && /^#[0-9a-fA-F]{6}$/.test(v)) ci.value = v;
+}
+function setCardBg(v) {
+  cardBgData = v || '';
+  renderCardBgSwatches();
+  const ci = document.getElementById('cardBgCustom'); if(ci && v && /^#[0-9a-fA-F]{6}$/.test(v)) ci.value = v;
+}
+function resetBgPickers(ibg, cbg) {
+  iconBgData = ibg || ''; cardBgData = cbg || '';
+  renderIconBgSwatches(); renderCardBgSwatches();
+}
+
 // ========== Logo ==========
 function selLiEmoji(e){sLogoD={type:'emoji',value:e};updLiPrev();document.getElementById('liEmojiWrap').hidden=true;}
 function handleLogoUp(ev){
@@ -1302,7 +1374,7 @@ function openAddModal() {
   document.getElementById('toolName').value='';
   document.getElementById('toolUrl').value='';
   document.getElementById('toolDesc').value='';
-  resetCatSel(''); resetIconPicker('auto','',''); clearErr();
+  resetCatSel(''); resetIconPicker('auto','',''); resetBgPickers('',''); clearErr();
   document.getElementById('modalOverlay').classList.add('active');
   setTimeout(()=>document.getElementById('toolName').focus(),200);
 }
@@ -1316,6 +1388,7 @@ function openEditModal(id) {
   document.getElementById('toolDesc').value=t.description||'';
   resetCatSel(t.category||'');
   resetIconPicker(t.iconType||'auto',t.iconEmoji||'',t.iconCustom||'');
+  resetBgPickers(t.iconBg||'', t.cardBg||'');
   clearErr();
   document.getElementById('modalOverlay').classList.add('active');
 }
@@ -1386,7 +1459,7 @@ async function saveTool() {
   else if(curIconTab==='upload'){iCustom=iconUpData;iconType=iCustom?'custom':'auto';}
   else if(curIconTab==='emoji'){iconType=iEmoji?'emoji':'auto';}
 
-  const body={name,url,category:cat,description:desc,iconType,iconEmoji:iEmoji,iconCustom:iCustom};
+  const body={name,url,category:cat,description:desc,iconType,iconEmoji:iEmoji,iconCustom:iCustom,iconBg:iconBgData,cardBg:cardBgData};
   try {
     if(id){await api('/tools/'+id,{method:'PUT',body});toast('工具已更新','success');}
     else{await api('/tools',{method:'POST',body});toast('工具已添加','success');}
@@ -1446,7 +1519,7 @@ function importData(event){
       for(const t of data.tools){
         if(!t.name||!t.url)continue;
         try{
-          await api('/tools',{method:'POST',body:{name:t.name,url:t.url,category:t.category||'',description:t.description||'',iconType:t.iconType||'auto',iconEmoji:t.iconEmoji||'',iconCustom:t.iconCustom||''}});
+          await api('/tools',{method:'POST',body:{name:t.name,url:t.url,category:t.category||'',description:t.description||'',iconType:t.iconType||'auto',iconEmoji:t.iconEmoji||'',iconCustom:t.iconCustom||'',iconBg:t.iconBg||'',cardBg:t.cardBg||''}});
           count++;
         }catch{}
       }
