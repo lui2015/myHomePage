@@ -568,6 +568,28 @@
   </div>
 </div>
 
+<!-- Recommend Detail Modal -->
+<div class="modal-overlay" id="recDetailModal" onclick="if(event.target===this)closeRecDetail()">
+  <div class="modal" style="max-width:540px" onclick="event.stopPropagation()">
+    <div style="display:flex;align-items:flex-start;gap:16px;padding:24px 24px 0;">
+      <div id="rdIcon" style="width:56px;height:56px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:28px;color:#fff;flex-shrink:0;"></div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:20px;font-weight:700;" id="rdName"></div>
+        <div style="font-size:13px;color:var(--text-light);margin-top:2px;" id="rdMeta"></div>
+      </div>
+      <button class="btn btn-ghost btn-icon" onclick="closeRecDetail()">✕</button>
+    </div>
+    <div style="padding:16px 24px 24px;">
+      <a id="rdUrl" href="#" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:5px;font-size:13px;margin-bottom:14px;word-break:break-all;">🔗 <span id="rdUrlText"></span></a>
+      <div id="rdDetail" style="font-size:14px;line-height:1.8;color:var(--text-secondary);margin-bottom:20px;"></div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-primary" id="rdAddBtn">＋ 添加到工具箱</button>
+        <a class="btn btn-secondary" id="rdVisit" href="#" target="_blank" rel="noopener" style="text-decoration:none;">🌐 访问官网</a>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="toast-c" id="toastC"></div>
 
 <script>
@@ -979,36 +1001,36 @@ document.getElementById('cardGrid').addEventListener('click', e=>{
 
 // ========== Hot AI Tools Recommend ==========
 const ALL_RECOMMEND = [
-  { name:'ChatGPT', url:'https://chat.openai.com', desc:'OpenAI 旗舰对话 AI，支持 GPT-4o', category:'AI', emoji:'🤖', color:'#10A37F', tag:'最热' },
-  { name:'Claude', url:'https://claude.ai', desc:'Anthropic 出品，擅长长文分析与编程', category:'AI', emoji:'🧠', color:'#D97706', tag:'热门' },
-  { name:'Gemini', url:'https://gemini.google.com', desc:'Google 多模态 AI，深度整合搜索', category:'AI', emoji:'✨', color:'#4285F4', tag:'热门' },
-  { name:'Midjourney', url:'https://www.midjourney.com', desc:'顶级 AI 绘画工具，艺术感极强', category:'AI', emoji:'🎨', color:'#7C3AED', tag:'创作' },
-  { name:'Cursor', url:'https://www.cursor.com', desc:'AI 驱动的代码编辑器，效率翻倍', category:'AI', emoji:'⚡', color:'#2563EB', tag:'开发' },
-  { name:'Perplexity', url:'https://www.perplexity.ai', desc:'AI 搜索引擎，实时联网回答', category:'AI', emoji:'🔍', color:'#22D3EE', tag:'搜索' },
-  { name:'Suno', url:'https://suno.com', desc:'AI 音乐生成，输入文字即可作曲', category:'AI', emoji:'🎵', color:'#EC4899', tag:'音乐' },
-  { name:'Gamma', url:'https://gamma.app', desc:'AI 一键生成精美 PPT 和文档', category:'AI', emoji:'📊', color:'#F97316', tag:'办公' },
-  { name:'v0 by Vercel', url:'https://v0.dev', desc:'AI 前端界面生成，描述即代码', category:'AI', emoji:'🖥️', color:'#000000', tag:'开发' },
-  { name:'Pika', url:'https://pika.art', desc:'AI 视频生成与编辑，创意无限', category:'AI', emoji:'🎬', color:'#8B5CF6', tag:'视频' },
-  { name:'Bolt.new', url:'https://bolt.new', desc:'AI 全栈应用生成，一句话建站', category:'AI', emoji:'⚡', color:'#6366F1', tag:'开发' },
-  { name:'Kimi', url:'https://kimi.moonshot.cn', desc:'月之暗面出品，支持 20 万字长文', category:'AI', emoji:'🌙', color:'#1E293B', tag:'对话' },
-  { name:'豆包', url:'https://www.doubao.com', desc:'字节跳动 AI 助手，多模态能力强', category:'AI', emoji:'🫘', color:'#00D1A0', tag:'对话' },
-  { name:'通义千问', url:'https://tongyi.aliyun.com', desc:'阿里巴巴大模型，企业级应用', category:'AI', emoji:'🌐', color:'#FF6A00', tag:'对话' },
-  { name:'DeepSeek', url:'https://chat.deepseek.com', desc:'深度求索开源大模型，推理能力强', category:'AI', emoji:'🔬', color:'#4F46E5', tag:'热门' },
-  { name:'Notion AI', url:'https://www.notion.so/product/ai', desc:'笔记与文档的 AI 助手', category:'AI', emoji:'📝', color:'#000000', tag:'办公' },
-  { name:'Canva AI', url:'https://www.canva.com', desc:'AI 设计工具，模板丰富一键出图', category:'AI', emoji:'🖌️', color:'#00C4CC', tag:'设计' },
-  { name:'Runway', url:'https://runwayml.com', desc:'专业级 AI 视频编辑与生成', category:'AI', emoji:'🎥', color:'#0A0A0A', tag:'视频' },
-  { name:'ElevenLabs', url:'https://elevenlabs.io', desc:'最自然的 AI 语音合成与克隆', category:'AI', emoji:'🎤', color:'#2563EB', tag:'语音' },
-  { name:'Kling AI', url:'https://klingai.com', desc:'快手出品，AI 视频生成黑马', category:'AI', emoji:'🎞️', color:'#FF4500', tag:'视频' },
-  { name:'Ideogram', url:'https://ideogram.ai', desc:'AI 图像生成，文字渲染极佳', category:'AI', emoji:'🎯', color:'#8B5CF6', tag:'创作' },
-  { name:'Replit Agent', url:'https://replit.com', desc:'AI 编程代理，对话式开发应用', category:'AI', emoji:'💻', color:'#F26207', tag:'开发' },
-  { name:'Lovable', url:'https://lovable.dev', desc:'AI 全栈开发，描述需求即可建站', category:'AI', emoji:'❤️', color:'#E11D48', tag:'开发' },
-  { name:'HeyGen', url:'https://www.heygen.com', desc:'AI 数字人视频生成，多语言唇同步', category:'AI', emoji:'👤', color:'#6D28D9', tag:'视频' },
-  { name:'Dify', url:'https://dify.ai', desc:'开源 LLM 应用开发平台', category:'AI', emoji:'🛠️', color:'#2563EB', tag:'平台' },
-  { name:'Coze', url:'https://www.coze.com', desc:'字节跳动 AI Bot 开发平台', category:'AI', emoji:'🤹', color:'#5B6EF5', tag:'平台' },
-  { name:'Napkin AI', url:'https://www.napkin.ai', desc:'AI 自动将文字转为精美图表', category:'AI', emoji:'📈', color:'#F59E0B', tag:'办公' },
-  { name:'Luma AI', url:'https://lumalabs.ai', desc:'AI 3D 模型生成与场景重建', category:'AI', emoji:'🌀', color:'#7C3AED', tag:'3D' },
-  { name:'Copilot', url:'https://copilot.microsoft.com', desc:'微软 AI 助手，整合 Office 全家桶', category:'AI', emoji:'🪟', color:'#0078D4', tag:'办公' },
-  { name:'秘塔搜索', url:'https://metaso.cn', desc:'无广告 AI 搜索引擎，结构化回答', category:'AI', emoji:'🔎', color:'#3B82F6', tag:'搜索' },
+  { id:'chatgpt', name:'ChatGPT', url:'https://chat.openai.com', desc:'OpenAI 旗舰对话 AI，支持 GPT-4o', category:'AI', emoji:'🤖', color:'#10A37F', tag:'最热' },
+  { id:'claude', name:'Claude', url:'https://claude.ai', desc:'Anthropic 出品，擅长长文分析与编程', category:'AI', emoji:'🧠', color:'#D97706', tag:'热门' },
+  { id:'gemini', name:'Gemini', url:'https://gemini.google.com', desc:'Google 多模态 AI，深度整合搜索', category:'AI', emoji:'✨', color:'#4285F4', tag:'热门' },
+  { id:'midjourney', name:'Midjourney', url:'https://www.midjourney.com', desc:'顶级 AI 绘画工具，艺术感极强', category:'AI', emoji:'🎨', color:'#7C3AED', tag:'创作' },
+  { id:'cursor', name:'Cursor', url:'https://www.cursor.com', desc:'AI 驱动的代码编辑器，效率翻倍', category:'AI', emoji:'⚡', color:'#2563EB', tag:'开发' },
+  { id:'perplexity', name:'Perplexity', url:'https://www.perplexity.ai', desc:'AI 搜索引擎，实时联网回答', category:'AI', emoji:'🔍', color:'#22D3EE', tag:'搜索' },
+  { id:'suno', name:'Suno', url:'https://suno.com', desc:'AI 音乐生成，输入文字即可作曲', category:'AI', emoji:'🎵', color:'#EC4899', tag:'音乐' },
+  { id:'gamma', name:'Gamma', url:'https://gamma.app', desc:'AI 一键生成精美 PPT 和文档', category:'AI', emoji:'📊', color:'#F97316', tag:'办公' },
+  { id:'v0', name:'v0 by Vercel', url:'https://v0.dev', desc:'AI 前端界面生成，描述即代码', category:'AI', emoji:'🖥️', color:'#000000', tag:'开发' },
+  { id:'pika', name:'Pika', url:'https://pika.art', desc:'AI 视频生成与编辑，创意无限', category:'AI', emoji:'🎬', color:'#8B5CF6', tag:'视频' },
+  { id:'bolt', name:'Bolt.new', url:'https://bolt.new', desc:'AI 全栈应用生成，一句话建站', category:'AI', emoji:'⚡', color:'#6366F1', tag:'开发' },
+  { id:'kimi', name:'Kimi', url:'https://kimi.moonshot.cn', desc:'月之暗面出品，支持 20 万字长文', category:'AI', emoji:'🌙', color:'#1E293B', tag:'对话' },
+  { id:'doubao', name:'豆包', url:'https://www.doubao.com', desc:'字节跳动 AI 助手，多模态能力强', category:'AI', emoji:'🫘', color:'#00D1A0', tag:'对话' },
+  { id:'tongyi', name:'通义千问', url:'https://tongyi.aliyun.com', desc:'阿里巴巴大模型，企业级应用', category:'AI', emoji:'🌐', color:'#FF6A00', tag:'对话' },
+  { id:'deepseek', name:'DeepSeek', url:'https://chat.deepseek.com', desc:'深度求索开源大模型，推理能力强', category:'AI', emoji:'🔬', color:'#4F46E5', tag:'热门' },
+  { id:'notion-ai', name:'Notion AI', url:'https://www.notion.so/product/ai', desc:'笔记与文档的 AI 助手', category:'AI', emoji:'📝', color:'#000000', tag:'办公' },
+  { id:'canva', name:'Canva AI', url:'https://www.canva.com', desc:'AI 设计工具，模板丰富一键出图', category:'AI', emoji:'🖌️', color:'#00C4CC', tag:'设计' },
+  { id:'runway', name:'Runway', url:'https://runwayml.com', desc:'专业级 AI 视频编辑与生成', category:'AI', emoji:'🎥', color:'#0A0A0A', tag:'视频' },
+  { id:'elevenlabs', name:'ElevenLabs', url:'https://elevenlabs.io', desc:'最自然的 AI 语音合成与克隆', category:'AI', emoji:'🎤', color:'#2563EB', tag:'语音' },
+  { id:'kling', name:'Kling AI', url:'https://klingai.com', desc:'快手出品，AI 视频生成黑马', category:'AI', emoji:'🎞️', color:'#FF4500', tag:'视频' },
+  { id:'ideogram', name:'Ideogram', url:'https://ideogram.ai', desc:'AI 图像生成，文字渲染极佳', category:'AI', emoji:'🎯', color:'#8B5CF6', tag:'创作' },
+  { id:'replit', name:'Replit Agent', url:'https://replit.com', desc:'AI 编程代理，对话式开发应用', category:'AI', emoji:'💻', color:'#F26207', tag:'开发' },
+  { id:'lovable', name:'Lovable', url:'https://lovable.dev', desc:'AI 全栈开发，描述需求即可建站', category:'AI', emoji:'❤️', color:'#E11D48', tag:'开发' },
+  { id:'heygen', name:'HeyGen', url:'https://www.heygen.com', desc:'AI 数字人视频生成，多语言唇同步', category:'AI', emoji:'👤', color:'#6D28D9', tag:'视频' },
+  { id:'dify', name:'Dify', url:'https://dify.ai', desc:'开源 LLM 应用开发平台', category:'AI', emoji:'🛠️', color:'#2563EB', tag:'平台' },
+  { id:'coze', name:'Coze', url:'https://www.coze.com', desc:'字节跳动 AI Bot 开发平台', category:'AI', emoji:'🤹', color:'#5B6EF5', tag:'平台' },
+  { id:'napkin', name:'Napkin AI', url:'https://www.napkin.ai', desc:'AI 自动将文字转为精美图表', category:'AI', emoji:'📈', color:'#F59E0B', tag:'办公' },
+  { id:'luma', name:'Luma AI', url:'https://lumalabs.ai', desc:'AI 3D 模型生成与场景重建', category:'AI', emoji:'🌀', color:'#7C3AED', tag:'3D' },
+  { id:'copilot', name:'Copilot', url:'https://copilot.microsoft.com', desc:'微软 AI 助手，整合 Office 全家桶', category:'AI', emoji:'🪟', color:'#0078D4', tag:'办公' },
+  { id:'metaso', name:'秘塔搜索', url:'https://metaso.cn', desc:'无广告 AI 搜索引擎，结构化回答', category:'AI', emoji:'🔎', color:'#3B82F6', tag:'搜索' },
 ];
 
 let recPage = 0;
@@ -1031,12 +1053,12 @@ function renderRecommend(){
   if(!grid)return;
   grid.innerHTML=currentRec.map(r=>{
     const added=tools.some(t=>t.url===r.url);
-    return `<div class="rec-card">
+    return `<div class="rec-card" onclick="openRecDetail('${r.id}')" style="cursor:pointer">
       <div class="rec-icon" style="background:${r.color}">${r.emoji}</div>
       <div class="rec-name">${esc(r.name)}</div>
       <div class="rec-desc">${esc(r.desc)}</div>
       <span class="rec-tag">${r.tag}</span><br>
-      <button class="rec-add ${added?'added':''}" onclick="${added?'':`addRecommend(this,'${escA(r.name)}','${escA(r.url)}','${escA(r.desc)}','${escA(r.category)}')`}">
+      <button class="rec-add ${added?'added':''}" onclick="event.stopPropagation();${added?'':`addRecommend(this,'${escA(r.name)}','${escA(r.url)}','${escA(r.desc)}','${escA(r.category)}')`}">
         ${added?'✓ 已添加':'＋ 添加'}
       </button>
     </div>`;
@@ -1050,6 +1072,46 @@ async function addRecommend(btn,name,url,desc,category){
     await reloadTools();render();
     toast(`已添加「${name}」`,'success');
   }catch(e){toast(e.message,'error');}
+}
+
+// ========== Recommend Detail Modal ==========
+let recDetailTool = null;
+
+async function openRecDetail(id) {
+  try {
+    const data = await api('/explore/' + id);
+    if (!data.tool) { toast('加载失败', 'error'); return; }
+    const t = data.tool;
+    recDetailTool = t;
+    document.getElementById('rdIcon').style.background = t.color;
+    document.getElementById('rdIcon').innerHTML = t.emoji;
+    document.getElementById('rdName').textContent = t.name;
+    document.getElementById('rdMeta').textContent = t.cat + ' · ' + t.tag;
+    document.getElementById('rdUrl').href = t.url;
+    document.getElementById('rdUrlText').textContent = t.url;
+    document.getElementById('rdDetail').textContent = t.detail;
+    document.getElementById('rdVisit').href = t.url;
+    const added = tools.some(x => x.url === t.url);
+    const btn = document.getElementById('rdAddBtn');
+    btn.textContent = added ? '✓ 已添加' : '＋ 添加到工具箱';
+    btn.disabled = added;
+    btn.style.background = added ? 'var(--success)' : '';
+    btn.onclick = added ? null : async () => {
+      try {
+        await api('/tools', { method: 'POST', body: { name: t.name, url: t.url, category: t.cat, description: t.desc, iconType: 'auto', iconEmoji: '', iconCustom: '' } });
+        if (t.cat && !categories.includes(t.cat)) { categories.push(t.cat); await api('/categories', { method: 'PUT', body: { categories } }); }
+        await reloadTools(); render();
+        btn.textContent = '✓ 已添加'; btn.disabled = true; btn.style.background = 'var(--success)';
+        toast(`已添加「${t.name}」`, 'success');
+      } catch (e) { toast(e.message, 'error'); }
+    };
+    document.getElementById('recDetailModal').classList.add('active');
+  } catch (e) { toast(e.message, 'error'); }
+}
+
+function closeRecDetail() {
+  document.getElementById('recDetailModal').classList.remove('active');
+  recDetailTool = null;
 }
 
 // ========== Smooth Drag & Drop ==========
@@ -1404,7 +1466,8 @@ function importData(event){
 // ========== Keyboard ==========
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'){
-    if(document.getElementById('confirmOv').classList.contains('active'))document.getElementById('confirmOv').classList.remove('active');
+    if(document.getElementById('recDetailModal').classList.contains('active'))closeRecDetail();
+    else if(document.getElementById('confirmOv').classList.contains('active'))document.getElementById('confirmOv').classList.remove('active');
     else if(document.getElementById('settingsOverlay').classList.contains('active'))closeSetting();
     else if(document.getElementById('modalOverlay').classList.contains('active'))closeModal();
   }
