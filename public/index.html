@@ -481,7 +481,7 @@
               <div class="dd-role" id="ddRole"></div>
             </div>
             <div class="dd-item" onclick="closeDropdown();openSettings()">⚙️ 设置</div>
-            <a href="/admin" class="dd-item">🛡️ 管理后台</a>
+            <a data-href="/admin" class="dd-item">🛡️ 管理后台</a>
             <div class="dd-item" onclick="closeDropdown();exportData()">📤 导出数据</div>
             <div class="dd-item" onclick="closeDropdown();document.getElementById('importFile').click()">📥 导入数据</div>
             <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
@@ -505,7 +505,7 @@
         </div>
         <div style="display:flex;gap:10px;align-items:center;">
           <button class="refresh-btn" onclick="shuffleRecommend()"><span class="rf-icon">🔄</span> 换一批</button>
-          <a href="/explore" class="refresh-btn" style="text-decoration:none;">🔍 查看更多</a>
+          <a data-href="/explore" class="refresh-btn" style="text-decoration:none;">🔍 查看更多</a>
         </div>
       </div>
       <div class="recommend-grid" id="recommendGrid"></div>
@@ -647,11 +647,21 @@ const THEMES = [
 ];
 const THEME_IDS = THEMES.map(t=>t.id);
 
+// ========== Base path helpers ==========
+const BASE = (window.__BASE__ || '');
+function withBase(p){ return BASE + (p.startsWith('/') ? p : '/' + p); }
+// Resolve all data-href links to BASE-prefixed href on load
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('a[data-href]').forEach(a => {
+    a.setAttribute('href', withBase(a.getAttribute('data-href')));
+  });
+});
+
 // ========== API Helpers ==========
 async function api(path, opts = {}) {
   const headers = { 'Content-Type': 'application/json' };
   if (token) headers['Authorization'] = 'Bearer ' + token;
-  const res = await fetch('/api' + path, { ...opts, headers, body: opts.body ? JSON.stringify(opts.body) : undefined });
+  const res = await fetch((window.__BASE__||'') + '/api' + path, { ...opts, headers, body: opts.body ? JSON.stringify(opts.body) : undefined });
   const data = await res.json();
   if (!res.ok) {
     if (res.status === 401) { logout(); }

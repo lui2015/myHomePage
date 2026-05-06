@@ -145,7 +145,27 @@ const initNewUser = db.transaction((userId) => {
 // ========== Express App ==========
 const app = express();
 app.use(express.json({ limit: '2mb' }));
-app.use(express.static(path.join(__dirname, 'public')));
+
+// Sub-path mount: set BASE_PATH=/tools to serve under https://host/tools
+// Default '' = mounted at root (back-compat).
+let BASE_PATH = (process.env.BASE_PATH || '').trim();
+if (BASE_PATH && !BASE_PATH.startsWith('/')) BASE_PATH = '/' + BASE_PATH;
+if (BASE_PATH.endsWith('/')) BASE_PATH = BASE_PATH.slice(0, -1);
+
+const router = express.Router();
+
+// Inject window.__BASE__ into HTML responses so frontend can build absolute URLs.
+function sendHtml(res, file) {
+  fs.readFile(file, 'utf8', (err, html) => {
+    if (err) return res.status(500).send('Internal Server Error');
+    const inject = `<script>window.__BASE__=${JSON.stringify(BASE_PATH)};</script>`;
+    const out = html.replace(/<head([^>]*)>/i, `<head$1>${inject}`);
+    res.type('html').send(out);
+  });
+}
+
+// Static assets under base path. HTML files go through sendHtml() below.
+router.use(express.static(path.join(__dirname, 'public'), { index: false }));
 
 // ========== Auth Middleware ==========
 function auth(req, res, next) {
@@ -163,7 +183,7 @@ function auth(req, res, next) {
 }
 
 // ========== Auth Routes ==========
-app.post('/api/register', (req, res) => {
+router.post('/api/register', (req, res) => {
   const { username, password } = req.body;
   if (!username || !password) return res.status(400).json({ error: '用户名和密码不能为空' });
   if (username.length < 2 || username.length > 20) return res.status(400).json({ error: '用户名长度 2-20 个字符' });
@@ -183,7 +203,7 @@ app.post('/api/register', (req, res) => {
   res.json({ token, user: { id: userId, username } });
 });
 
-app.post('/api/login', (req, res) => {
+router.post('/api/login', (req, res) => {
   const { username, password } = req.body;
   if (!username || !password) return res.status(400).json({ error: '用户名和密码不能为空' });
 
@@ -227,7 +247,7 @@ function adminAuth(req, res, next) {
 }
 
 // Admin password login (no user account needed)
-app.post('/api/admin/login', (req, res) => {
+router.post('/api/admin/login', (req, res) => {
   const { password } = req.body;
   if (!password) return res.status(400).json({ error: '请输入密码' });
   if (password !== ADMIN_PASSWORD) return res.status(401).json({ error: '密码错误' });
@@ -237,7 +257,7 @@ app.post('/api/admin/login', (req, res) => {
 
 // ========== Admin API ==========
 // Get all users with stats
-app.get('/api/admin/users', adminAuth, (req, res) => {
+router.get('/api/admin/users', adminAuth, (req, res) => {
   const users = db.prepare(`
     SELECT u.id, u.username, u.role, u.created_at,
       (SELECT COUNT(*) FROM tools WHERE user_id = u.id) as tool_count,
@@ -248,7 +268,7 @@ app.get('/api/admin/users', adminAuth, (req, res) => {
 });
 
 // Get single user detail with tools and settings
-app.get('/api/admin/users/:id', adminAuth, (req, res) => {
+router.get('/api/admin/users/:id', adminAuth, (req, res) => {
   const user = db.prepare('SELECT id, username, role, created_at FROM users WHERE id = ?').get(req.params.id);
   if (!user) return res.status(404).json({ error: '用户不存在' });
   const tools = stmts.getTools.all(user.id).map(t => ({
@@ -267,7 +287,7 @@ app.get('/api/admin/users/:id', adminAuth, (req, res) => {
 });
 
 // Delete user (cannot delete self)
-app.delete('/api/admin/users/:id', adminAuth, (req, res) => {
+router.delete('/api/admin/users/:id', adminAuth, (req, res) => {
   const targetId = parseInt(req.params.id);
   if (targetId === req.userId) return res.status(400).json({ error: '不能删除自己' });
   const user = db.prepare('SELECT id FROM users WHERE id = ?').get(targetId);
@@ -277,7 +297,7 @@ app.delete('/api/admin/users/:id', adminAuth, (req, res) => {
 });
 
 // Toggle user role
-app.put('/api/admin/users/:id/role', adminAuth, (req, res) => {
+router.put('/api/admin/users/:id/role', adminAuth, (req, res) => {
   const targetId = parseInt(req.params.id);
   if (targetId === req.userId) return res.status(400).json({ error: '不能修改自己的角色' });
   const { role } = req.body;
@@ -289,7 +309,7 @@ app.put('/api/admin/users/:id/role', adminAuth, (req, res) => {
 });
 
 // Reset user password
-app.put('/api/admin/users/:id/password', adminAuth, (req, res) => {
+router.put('/api/admin/users/:id/password', adminAuth, (req, res) => {
   const { password } = req.body;
   if (!password || password.length < 6) return res.status(400).json({ error: '密码至少6个字符' });
   const user = db.prepare('SELECT id FROM users WHERE id = ?').get(parseInt(req.params.id));
@@ -300,7 +320,7 @@ app.put('/api/admin/users/:id/password', adminAuth, (req, res) => {
 });
 
 // Delete a tool of any user
-app.delete('/api/admin/tools/:id', adminAuth, (req, res) => {
+router.delete('/api/admin/tools/:id', adminAuth, (req, res) => {
   const tool = db.prepare('SELECT id FROM tools WHERE id = ?').get(req.params.id);
   if (!tool) return res.status(404).json({ error: '工具不存在' });
   db.prepare('DELETE FROM tools WHERE id = ?').run(req.params.id);
@@ -308,7 +328,7 @@ app.delete('/api/admin/tools/:id', adminAuth, (req, res) => {
 });
 
 // Edit a tool of any user
-app.put('/api/admin/tools/:id', adminAuth, (req, res) => {
+router.put('/api/admin/tools/:id', adminAuth, (req, res) => {
   const { name, url, category, description, iconType, iconEmoji, iconCustom, iconBg, cardBg } = req.body;
   if (!name || !url) return res.status(400).json({ error: '名称和地址不能为空' });
   const tool = db.prepare('SELECT * FROM tools WHERE id = ?').get(req.params.id);
@@ -322,7 +342,7 @@ app.put('/api/admin/tools/:id', adminAuth, (req, res) => {
 });
 
 // Add a tool for any user
-app.post('/api/admin/tools', adminAuth, (req, res) => {
+router.post('/api/admin/tools', adminAuth, (req, res) => {
   const { userId, name, url, category, description, iconType, iconEmoji, iconCustom, iconBg, cardBg } = req.body;
   if (!userId || !name || !url) return res.status(400).json({ error: '用户ID、名称和地址不能为空' });
   const user = db.prepare('SELECT id FROM users WHERE id = ?').get(userId);
@@ -337,7 +357,7 @@ app.post('/api/admin/tools', adminAuth, (req, res) => {
 });
 
 // Update settings of any user
-app.put('/api/admin/users/:id/settings', adminAuth, (req, res) => {
+router.put('/api/admin/users/:id/settings', adminAuth, (req, res) => {
   const userId = parseInt(req.params.id);
   const user = db.prepare('SELECT id FROM users WHERE id = ?').get(userId);
   if (!user) return res.status(404).json({ error: '用户不存在' });
@@ -356,7 +376,7 @@ app.put('/api/admin/users/:id/settings', adminAuth, (req, res) => {
 });
 
 // Dashboard stats
-app.get('/api/admin/stats', adminAuth, (req, res) => {
+router.get('/api/admin/stats', adminAuth, (req, res) => {
   const userCount = db.prepare('SELECT COUNT(*) as c FROM users').get().c;
   const toolCount = db.prepare('SELECT COUNT(*) as c FROM tools').get().c;
   const catCount = db.prepare('SELECT COUNT(DISTINCT name) as c FROM categories').get().c;
@@ -365,19 +385,19 @@ app.get('/api/admin/stats', adminAuth, (req, res) => {
 });
 
 // Return user role in /api/me
-app.get('/api/me', auth, (req, res) => {
+router.get('/api/me', auth, (req, res) => {
   const user = db.prepare('SELECT id, username, role FROM users WHERE id = ?').get(req.userId);
   if (!user) return res.status(404).json({ error: '用户不存在' });
   res.json({ user });
 });
 
 // Serve admin page
-app.get('/admin', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+router.get('/admin', (req, res) => {
+  sendHtml(res, path.join(__dirname, 'public', 'admin.html'));
 });
 
 // ========== Settings Routes ==========
-app.get('/api/settings', auth, (req, res) => {
+router.get('/api/settings', auth, (req, res) => {
   const s = stmts.getSettings.get(req.userId);
   if (!s) return res.json({ title: 'My Toolbox', theme: 'light', dragEnabled: false, logoIcon: { type: 'emoji', value: '🧰' }, clickEffect: true });
   res.json({
@@ -389,7 +409,7 @@ app.get('/api/settings', auth, (req, res) => {
   });
 });
 
-app.put('/api/settings', auth, (req, res) => {
+router.put('/api/settings', auth, (req, res) => {
   const { title, theme, dragEnabled, logoIcon, clickEffect } = req.body;
   stmts.updateSettings.run(
     title || 'My Toolbox',
@@ -403,12 +423,12 @@ app.put('/api/settings', auth, (req, res) => {
 });
 
 // ========== Categories Routes ==========
-app.get('/api/categories', auth, (req, res) => {
+router.get('/api/categories', auth, (req, res) => {
   const cats = stmts.getCategories.all(req.userId).map(c => c.name);
   res.json({ categories: cats });
 });
 
-app.put('/api/categories', auth, (req, res) => {
+router.put('/api/categories', auth, (req, res) => {
   const { categories } = req.body;
   if (!Array.isArray(categories)) return res.status(400).json({ error: '参数错误' });
   stmts.setCategories.run(req.userId);
@@ -417,7 +437,7 @@ app.put('/api/categories', auth, (req, res) => {
 });
 
 // ========== Tools Routes ==========
-app.get('/api/tools', auth, (req, res) => {
+router.get('/api/tools', auth, (req, res) => {
   const tools = stmts.getTools.all(req.userId).map(t => ({
     id: t.id,
     name: t.name,
@@ -436,7 +456,7 @@ app.get('/api/tools', auth, (req, res) => {
   res.json({ tools });
 });
 
-app.post('/api/tools', auth, (req, res) => {
+router.post('/api/tools', auth, (req, res) => {
   const { name, url, category, description, iconType, iconEmoji, iconCustom, iconBg, cardBg } = req.body;
   if (!name || !url) return res.status(400).json({ error: '名称和地址不能为空' });
   const id = uid();
@@ -447,7 +467,7 @@ app.post('/api/tools', auth, (req, res) => {
   res.json({ tool: { id: tool.id, name: tool.name, url: tool.url, category: tool.category, description: tool.description, iconType: tool.icon_type, iconEmoji: tool.icon_emoji, iconCustom: tool.icon_custom, iconBg: tool.icon_bg || '', cardBg: tool.card_bg || '', sortOrder: tool.sort_order } });
 });
 
-app.put('/api/tools/:id', auth, (req, res) => {
+router.put('/api/tools/:id', auth, (req, res) => {
   const { name, url, category, description, iconType, iconEmoji, iconCustom, iconBg, cardBg } = req.body;
   if (!name || !url) return res.status(400).json({ error: '名称和地址不能为空' });
   const existing = stmts.getTool.get(req.params.id, req.userId);
@@ -457,14 +477,14 @@ app.put('/api/tools/:id', auth, (req, res) => {
   res.json({ success: true });
 });
 
-app.delete('/api/tools/:id', auth, (req, res) => {
+router.delete('/api/tools/:id', auth, (req, res) => {
   const existing = stmts.getTool.get(req.params.id, req.userId);
   if (!existing) return res.status(404).json({ error: '工具不存在' });
   stmts.deleteTool.run(req.params.id, req.userId);
   res.json({ success: true });
 });
 
-app.put('/api/tools-order', auth, (req, res) => {
+router.put('/api/tools-order', auth, (req, res) => {
   const { order } = req.body; // array of tool ids in desired order
   if (!Array.isArray(order)) return res.status(400).json({ error: '参数错误' });
   const updateOrder = db.transaction(() => {
@@ -540,7 +560,7 @@ const RECOMMEND_DATA = [
     desc:'无广告 AI 搜索引擎，结构化回答', detail:'秘塔搜索是一款国产 AI 搜索引擎，以无广告、结构化回答为核心特色。支持简洁、深入、研究三种搜索模式，自动整合多来源信息并给出带引用的结构化回答。特别适合学术研究、深度调研和信息整理，是国内最受好评的 AI 搜索产品之一。' },
 ];
 
-app.get('/api/explore/list', (req, res) => {
+router.get('/api/explore/list', (req, res) => {
   const { cat, q } = req.query;
   let list = RECOMMEND_DATA.map(({ detail, ...rest }) => rest);
   if (cat && cat !== '全部') list = list.filter(t => t.cat === cat);
@@ -549,22 +569,30 @@ app.get('/api/explore/list', (req, res) => {
   res.json({ tools: list, categories: cats });
 });
 
-app.get('/api/explore/:id', (req, res) => {
+router.get('/api/explore/:id', (req, res) => {
   const tool = RECOMMEND_DATA.find(t => t.id === req.params.id);
   if (!tool) return res.status(404).json({ error: '工具不存在' });
   res.json({ tool });
 });
 
-app.get('/explore', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'explore.html'));
+router.get('/explore', (req, res) => {
+  sendHtml(res, path.join(__dirname, 'public', 'explore.html'));
 });
 
 // ========== SPA Fallback ==========
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+router.get('*', (req, res) => {
+  sendHtml(res, path.join(__dirname, 'public', 'index.html'));
 });
+
+// Mount router under BASE_PATH (empty string = root mount, fully back-compat)
+app.use(BASE_PATH || '/', router);
+
+// When BASE_PATH is set, everything outside the mount returns 404.
+if (BASE_PATH) {
+  app.use((req, res) => res.status(404).type('text/plain').send('Not Found'));
+}
 
 // ========== Start ==========
 app.listen(PORT, () => {
-  console.log(`✅ My Toolbox 服务已启动: http://localhost:${PORT}`);
+  console.log(`✅ My Toolbox 服务已启动: http://localhost:${PORT}${BASE_PATH || ''}`);
 });

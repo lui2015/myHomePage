@@ -112,7 +112,7 @@
     <div class="auth-err" id="authErr"></div>
     <div class="fg"><label>管理密码</label><input id="aPass" type="password" placeholder="请输入管理密码"></div>
     <button class="btn btn-primary" onclick="doLogin()">进 入</button>
-    <div style="text-align:center;margin-top:14px;font-size:13px;"><a href="/">← 返回首页</a></div>
+    <div style="text-align:center;margin-top:14px;font-size:13px;"><a data-href="/">← 返回首页</a></div>
   </div>
 </div>
 
@@ -121,7 +121,7 @@
   <div class="topbar">
     <h1>🛡️ 管理后台</h1>
     <div class="topbar-right">
-      <a href="/" style="font-size:13px">← 返回首页</a>
+      <a data-href="/" style="font-size:13px">← 返回首页</a>
       <span id="adminName"></span>
       <button class="btn btn-ghost btn-sm" onclick="doLogout()">退出</button>
     </div>
@@ -239,6 +239,9 @@ let token = localStorage.getItem('tb_admin_token') || '';
 let currentUser = null;
 let allUsers = [];
 let pendingPwdUserId = null;
+const BASE=(window.__BASE__||'');
+function withBase(p){return BASE+(p.startsWith('/')?p:'/'+p);}
+document.addEventListener('DOMContentLoaded',()=>{document.querySelectorAll('a[data-href]').forEach(a=>{a.setAttribute('href',withBase(a.getAttribute('data-href')));});});
 const COLORS = ['#6366F1','#8B5CF6','#EC4899','#F43F5E','#F97316','#EAB308','#22C55E','#14B8A6','#06B6D4','#3B82F6'];
 function getColor(n){let h=0;for(let i=0;i<n.length;i++)h=n.charCodeAt(i)+((h<<5)-h);return COLORS[Math.abs(h)%COLORS.length]}
 function esc(s){if(!s)return'';const d=document.createElement('div');d.textContent=s;return d.innerHTML}
@@ -248,7 +251,7 @@ function fmtDate(s){if(!s)return'-';try{const d=new Date(s+'Z');return d.toLocal
 async function api(path,opts={}){
   const headers={'Content-Type':'application/json'};
   if(token)headers['Authorization']='Bearer '+token;
-  const res=await fetch('/api'+path,{...opts,headers,body:opts.body?JSON.stringify(opts.body):undefined});
+  const res=await fetch((window.__BASE__||'')+'/api'+path,{...opts,headers,body:opts.body?JSON.stringify(opts.body):undefined});
   const data=await res.json();
   if(!res.ok){if(res.status===401||res.status===403){doLogout();}throw new Error(data.error||'请求失败');}
   return data;

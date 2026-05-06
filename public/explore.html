@@ -218,7 +218,7 @@
     <h1>🔥 探索 AI 工具</h1>
     <div class="topbar-search"><span class="si">🔍</span><input type="text" id="searchInput" placeholder="搜索工具名称或描述..." oninput="doSearch()"></div>
     <div class="topbar-right">
-      <a href="/" class="btn btn-outline btn-sm">← 返回首页</a>
+      <a data-href="/" class="btn btn-outline btn-sm">← 返回首页</a>
     </div>
   </div>
 </div>
@@ -253,6 +253,9 @@
 const THEME_IDS=['light','dark','cyberpunk','chinese','sunset','forest'];
 let allTools=[], allCats=[], curCat='全部', curSearch='', currentDetailTool=null;
 const token=localStorage.getItem('tb_token')||'';
+const BASE=(window.__BASE__||'');
+function withBase(p){return BASE+(p.startsWith('/')?p:'/'+p);}
+document.addEventListener('DOMContentLoaded',()=>{document.querySelectorAll('a[data-href]').forEach(a=>{a.setAttribute('href',withBase(a.getAttribute('data-href')));});});
 
 function esc(s){if(!s)return'';const d=document.createElement('div');d.textContent=s;return d.innerHTML}
 function toast(msg,type='info'){const w=document.getElementById('toastWrap'),t=document.createElement('div');const ic={ok:'✅',err:'❌',info:'ℹ️'};t.className='toast '+type;t.innerHTML=`<span>${ic[type]||''}</span>${esc(msg)}`;w.appendChild(t);setTimeout(()=>{t.style.opacity='0';t.style.transition='.3s';setTimeout(()=>t.remove(),300)},2500);}
@@ -266,7 +269,7 @@ function applyTheme(t){
 async function apiFetch(path,opts={}){
   const headers={'Content-Type':'application/json'};
   if(token)headers['Authorization']='Bearer '+token;
-  const res=await fetch('/api'+path,{...opts,headers,body:opts.body?JSON.stringify(opts.body):undefined});
+  const res=await fetch((window.__BASE__||'')+'/api'+path,{...opts,headers,body:opts.body?JSON.stringify(opts.body):undefined});
   return res.json();
 }
 
